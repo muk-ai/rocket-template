@@ -9,5 +9,6 @@ RUN mkdir src && touch src/lib.rs
 RUN cargo build --release
 
 COPY . .
+RUN cargo build --release
 
-CMD ['cargo', 'run', '--release']
+CMD ROCKET_PORT=$PORT /app/target/release/hello-rust
