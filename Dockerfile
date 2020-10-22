@@ -9,6 +9,7 @@ COPY ./Cargo.toml ./Cargo.lock ./
 RUN mkdir src
 RUN echo "fn main(){}" > src/main.rs
 RUN cargo build --release
+RUN rm -f target/release/deps/hello_rust*
 
 COPY . .
 RUN cargo build --release
