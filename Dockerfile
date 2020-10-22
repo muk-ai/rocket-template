@@ -4,8 +4,10 @@ FROM rustlang/rust:nightly-buster
 WORKDIR /app
 
 COPY ./Cargo.toml ./Cargo.lock ./
-# lib.rs or main.rsがないとerrorになる
-RUN mkdir src && touch src/lib.rs
+
+# minimum compilable main.rs
+RUN mkdir src
+RUN echo "fn main(){}" > src/main.rs
 RUN cargo build --release
 
 COPY . .
