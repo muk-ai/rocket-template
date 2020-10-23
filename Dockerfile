@@ -14,7 +14,7 @@ RUN rm -f target/release/deps/hello_rust*
 COPY . .
 RUN cargo build --release
 
-FROM rustlang/rust:nightly-buster
+FROM debian:10.6-slim
 
 COPY --from=builder /app/target/release/hello-rust /app/target/release/hello-rust
 CMD ROCKET_PORT=$PORT /app/target/release/hello-rust
