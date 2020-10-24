@@ -31,8 +31,13 @@ fn count(id: &RequestId) -> String {
     format!("This is request #{}.", id.0)
 }
 
+#[get("/count2")]
+fn count2() -> &'static str {
+  "count2"
+}
+
 fn main() {
   rocket::ignite()
-    .mount("/", routes![index, count])
+    .mount("/", routes![index, count, count2])
     .launch();
 }
