@@ -7,8 +7,13 @@ fn index() -> &'static str {
   "Hello, world!"
 }
 
+#[get("/count")]
+fn count() -> &'static str {
+  "couunt"
+}
+
 fn main() {
   rocket::ignite()
-    .mount("/", routes![index])
+    .mount("/", routes![index, count])
     .launch();
 }
