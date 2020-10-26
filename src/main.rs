@@ -31,8 +31,16 @@ fn count(id: &RequestId) -> String {
     format!("This is request #{}.", id.0)
 }
 
+#[get("/params/<id>")]
+fn params(id: Option<usize>) -> String {
+    match id {
+        Some(n) => format!("usize: {}", n),
+        None => "Not a usize".to_string()
+    }
+}
+
 fn main() {
   rocket::ignite()
-    .mount("/", routes![index, count])
+    .mount("/", routes![index, count, params])
     .launch();
 }
