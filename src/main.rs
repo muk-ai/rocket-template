@@ -4,7 +4,7 @@
 
 #[get("/")]
 fn index() -> &'static str {
-  "Hello, world!"
+    "Hello, world!"
 }
 
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -40,7 +40,7 @@ fn params(id: Option<usize>) -> String {
 }
 
 fn main() {
-  rocket::ignite()
-    .mount("/", routes![index, count, params])
-    .launch();
+    rocket::ignite()
+        .mount("/", routes![index, count, params])
+        .launch();
 }
