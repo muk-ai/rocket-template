@@ -1,6 +1,7 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
 #[macro_use] extern crate rocket;
+use rocket_contrib::serve::StaticFiles;
 
 #[get("/")]
 fn index() -> &'static str {
@@ -42,5 +43,6 @@ fn params(id: Option<usize>) -> String {
 fn main() {
     rocket::ignite()
         .mount("/", routes![index, count, params])
+        .mount("/public", StaticFiles::from(concat!(env!("CARGO_MANIFEST_DIR"), "/public")))
         .launch();
 }
