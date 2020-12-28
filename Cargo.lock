@@ -796,6 +796,8 @@ dependencies = [
  "log 0.4.11",
  "notify",
  "rocket",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
