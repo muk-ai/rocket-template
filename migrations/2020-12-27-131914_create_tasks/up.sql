@@ -2,7 +2,7 @@
 CREATE TABLE tasks (
   id SERIAL PRIMARY KEY NOT NULL,
   description text NOT NULL,
-  completed boolean DEFAULT false
+  completed boolean NOT NULL DEFAULT false
 );
 
 INSERT INTO tasks (description) VALUES ('demo task1');

@@ -2,7 +2,10 @@
 
 #[macro_use]
 extern crate rocket;
-use rocket_contrib::serve::StaticFiles;
+use rocket_contrib::{json::Json, serve::StaticFiles};
+
+mod task;
+use task::Task;
 
 #[get("/")]
 fn index() -> &'static str {
@@ -41,9 +44,19 @@ fn params(id: Option<usize>) -> String {
     }
 }
 
+#[get("/tasks/<id>")]
+fn tasks_get(id: i32) -> Json<Task> {
+    let task = Task {
+        id,
+        description: "desc".to_string(),
+        completed: false,
+    };
+    Json(task)
+}
+
 fn main() {
     rocket::ignite()
-        .mount("/", routes![index, count, params])
+        .mount("/", routes![index, count, params, tasks_get])
         .mount(
             "/public",
             StaticFiles::from(concat!(env!("CARGO_MANIFEST_DIR"), "/public")),
