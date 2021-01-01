@@ -345,6 +345,7 @@ version = "0.1.0"
 dependencies = [
  "diesel",
  "dotenv",
+ "r2d2",
  "rocket",
  "rocket_contrib",
  "serde",
