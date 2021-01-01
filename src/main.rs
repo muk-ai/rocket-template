@@ -54,8 +54,29 @@ fn tasks_get(id: i32) -> Json<Task> {
     Json(task)
 }
 
+use diesel::{r2d2::ConnectionManager, PgConnection};
+use r2d2;
+use std::env;
+type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
+
+fn init_pool() -> Pool {
+    let manager = ConnectionManager::<PgConnection>::new(database_url());
+    Pool::builder()
+        .max_size(4)
+        .build(manager)
+        .expect("Failed to create pool")
+}
+
+fn database_url() -> String {
+    env::var("DATABASE_URL").expect("DATABASE_URL must be set")
+}
+
 fn main() {
+    use dotenv::dotenv;
+    dotenv().ok();
+
     rocket::ignite()
+        .manage(init_pool())
         .mount("/", routes![index, count, params, tasks_get])
         .mount(
             "/public",
