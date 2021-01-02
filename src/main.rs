@@ -4,15 +4,24 @@
 extern crate rocket;
 use rocket_contrib::{json::Json, serve::StaticFiles};
 
+#[macro_use]
+extern crate diesel;
+
 mod task;
 use task::Task;
+
+mod schema;
+use schema::tasks;
 
 #[get("/")]
 fn index() -> &'static str {
     "Hello, world!"
 }
 
-use rocket::request::{self, FromRequest, Request};
+use rocket::{
+    request::{self, FromRequest, Request},
+    State,
+};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 static ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
@@ -45,13 +54,12 @@ fn params(id: Option<usize>) -> String {
 }
 
 #[get("/tasks/<id>")]
-fn tasks_get(id: i32) -> Json<Task> {
-    let task = Task {
-        id,
-        description: "desc".to_string(),
-        completed: false,
-    };
-    Json(task)
+fn tasks_get(id: i32, pool: State<Pool>) -> Result<Json<Task>, diesel::result::Error> {
+    use diesel::prelude::*;
+
+    let conn = pool.get().unwrap();
+    let query_result: QueryResult<Task> = tasks::table.find(id).get_result::<Task>(&conn);
+    query_result.map(|task| Json(task))
 }
 
 use diesel::{r2d2::ConnectionManager, PgConnection};
