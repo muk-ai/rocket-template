@@ -54,7 +54,7 @@ fn params(id: Option<usize>) -> String {
 }
 
 #[get("/tasks/<id>")]
-fn tasks_get(id: i32, pool: State<Pool>) -> Result<Json<Task>, diesel::result::Error> {
+fn tasks_get(id: i32, pool: State<PgPool>) -> Result<Json<Task>, diesel::result::Error> {
     use diesel::prelude::*;
 
     let conn = pool.get().unwrap();
@@ -65,11 +65,11 @@ fn tasks_get(id: i32, pool: State<Pool>) -> Result<Json<Task>, diesel::result::E
 use diesel::{r2d2::ConnectionManager, PgConnection};
 use r2d2;
 use std::env;
-type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
+type PgPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
-fn init_pool() -> Pool {
+fn init_pool() -> PgPool {
     let manager = ConnectionManager::<PgConnection>::new(database_url());
-    Pool::builder()
+    PgPool::builder()
         .max_size(4)
         .build(manager)
         .expect("Failed to create pool")
