@@ -13,6 +13,8 @@ use task::Task;
 mod schema;
 use schema::tasks;
 
+mod connection;
+
 #[get("/")]
 fn index() -> &'static str {
     "Hello, world!"
@@ -54,7 +56,10 @@ fn params(id: Option<usize>) -> String {
 }
 
 #[get("/tasks/<id>")]
-fn tasks_get(id: i32, pool: State<PgPool>) -> Result<Json<Task>, diesel::result::Error> {
+fn tasks_get(
+    id: i32,
+    pool: State<connection::PgPool>,
+) -> Result<Json<Task>, diesel::result::Error> {
     use diesel::prelude::*;
 
     let conn = pool.get().unwrap();
@@ -62,29 +67,12 @@ fn tasks_get(id: i32, pool: State<PgPool>) -> Result<Json<Task>, diesel::result:
     query_result.map(|task| Json(task))
 }
 
-use diesel::{r2d2::ConnectionManager, PgConnection};
-use r2d2;
-use std::env;
-type PgPool = r2d2::Pool<ConnectionManager<PgConnection>>;
-
-fn init_pool() -> PgPool {
-    let manager = ConnectionManager::<PgConnection>::new(database_url());
-    PgPool::builder()
-        .max_size(4)
-        .build(manager)
-        .expect("Failed to create pool")
-}
-
-fn database_url() -> String {
-    env::var("DATABASE_URL").expect("DATABASE_URL must be set")
-}
-
 fn main() {
     use dotenv::dotenv;
     dotenv().ok();
 
     rocket::ignite()
-        .manage(init_pool())
+        .manage(connection::init_pool())
         .mount("/", routes![index, count, params, tasks_get])
         .mount(
             "/public",
