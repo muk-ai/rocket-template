@@ -15,10 +15,8 @@ use schema::tasks;
 
 mod connection;
 
-#[get("/")]
-fn index() -> &'static str {
-    "Hello, world!"
-}
+mod handlers;
+use handlers::hello_world;
 
 use rocket::{
     request::{self, FromRequest, Request},
@@ -73,7 +71,8 @@ fn main() {
 
     rocket::ignite()
         .manage(connection::init_pool())
-        .mount("/", routes![index, count, params, tasks_get])
+        .mount("/", routes![hello_world::index])
+        .mount("/", routes![count, params, tasks_get])
         .mount(
             "/public",
             StaticFiles::from(concat!(env!("CARGO_MANIFEST_DIR"), "/public")),
