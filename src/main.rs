@@ -17,6 +17,7 @@ mod connection;
 
 mod handlers;
 use handlers::hello_world;
+use handlers::params;
 
 use rocket::{
     request::{self, FromRequest, Request},
@@ -45,14 +46,6 @@ fn count(id: &RequestId) -> String {
     format!("This is request #{}.", id.0)
 }
 
-#[get("/params/<id>")]
-fn params(id: Option<usize>) -> String {
-    match id {
-        Some(n) => format!("usize: {}", n),
-        None => "Not a usize".to_string(),
-    }
-}
-
 #[get("/tasks/<id>")]
 fn tasks_get(
     id: i32,
@@ -72,7 +65,7 @@ fn main() {
     rocket::ignite()
         .manage(connection::init_pool())
         .mount("/", routes![hello_world::index])
-        .mount("/", routes![count, params, tasks_get])
+        .mount("/", routes![count, params::params, tasks_get])
         .mount(
             "/public",
             StaticFiles::from(concat!(env!("CARGO_MANIFEST_DIR"), "/public")),
