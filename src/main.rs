@@ -16,35 +16,11 @@ use schema::tasks;
 mod connection;
 
 mod handlers;
+use handlers::count;
 use handlers::hello_world;
 use handlers::params;
 
-use rocket::{
-    request::{self, FromRequest, Request},
-    State,
-};
-use std::sync::atomic::{AtomicUsize, Ordering};
-
-static ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
-struct RequestId(pub usize);
-
-impl<'a, 'r> FromRequest<'a, 'r> for &'a RequestId {
-    type Error = ();
-
-    fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
-        // The closure passed to `local_cache` will be executed at most once per
-        // request: the first time the `RequestId` guard is used. If it is
-        // requested again, `local_cache` will return the same value.
-        request::Outcome::Success(
-            request.local_cache(|| RequestId(ID_COUNTER.fetch_add(1, Ordering::Relaxed))),
-        )
-    }
-}
-
-#[get("/count")]
-fn count(id: &RequestId) -> String {
-    format!("This is request #{}.", id.0)
-}
+use rocket::State;
 
 #[get("/tasks/<id>")]
 fn tasks_get(
@@ -65,7 +41,7 @@ fn main() {
     rocket::ignite()
         .manage(connection::init_pool())
         .mount("/", routes![hello_world::index])
-        .mount("/", routes![count, params::params, tasks_get])
+        .mount("/", routes![count::count, params::params, tasks_get])
         .mount(
             "/public",
             StaticFiles::from(concat!(env!("CARGO_MANIFEST_DIR"), "/public")),
