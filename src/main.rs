@@ -24,7 +24,15 @@ fn main() {
     rocket::ignite()
         .manage(connection::init_pool())
         .mount("/", routes![hello_world::index])
-        .mount("/", routes![count::count, params::params, tasks::tasks_get])
+        .mount(
+            "/",
+            routes![
+                count::count,
+                params::params,
+                tasks::tasks_get,
+                tasks::tasks_post
+            ],
+        )
         .mount(
             "/public",
             StaticFiles::from(concat!(env!("CARGO_MANIFEST_DIR"), "/public")),

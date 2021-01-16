@@ -17,3 +17,29 @@ pub fn tasks_get(id: i32, conn: DbConn) -> Result<Json<Task>, Status> {
             _ => Status::InternalServerError,
         })
 }
+
+#[derive(Insertable)]
+#[table_name = "tasks"]
+struct InsertableTask {
+    description: String,
+    completed: bool,
+}
+
+impl InsertableTask {
+    fn from_task(task: Task) -> InsertableTask {
+        InsertableTask {
+            description: task.description,
+            completed: false,
+        }
+    }
+}
+
+#[post("/tasks", format = "application/json", data = "<task>")]
+pub fn tasks_post(task: Json<Task>, conn: DbConn) -> Result<Status, Status> {
+    let query_result = diesel::insert_into(tasks::table)
+        .values(&InsertableTask::from_task(task.into_inner()))
+        .get_result::<Task>(&*conn);
+    query_result
+        .map(|_task| Status::Created)
+        .map_err(|_error| Status::InternalServerError)
+}
