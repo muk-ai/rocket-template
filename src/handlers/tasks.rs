@@ -2,6 +2,7 @@ use diesel::prelude::*;
 use diesel::result::Error;
 use rocket::http::Status;
 use rocket_contrib::json::Json;
+use serde::Deserialize;
 
 use crate::connection::DbConn;
 use crate::schema::tasks;
@@ -26,7 +27,7 @@ struct InsertableTask {
 }
 
 impl InsertableTask {
-    fn from_task(task: Task) -> InsertableTask {
+    fn from_task(task: TaskDescriptionData) -> InsertableTask {
         InsertableTask {
             description: task.description,
             completed: false,
@@ -34,8 +35,13 @@ impl InsertableTask {
     }
 }
 
+#[derive(Deserialize)]
+pub struct TaskDescriptionData {
+    description: String,
+}
+
 #[post("/tasks", format = "application/json", data = "<task>")]
-pub fn tasks_post(task: Json<Task>, conn: DbConn) -> Result<Status, Status> {
+pub fn tasks_post(task: Json<TaskDescriptionData>, conn: DbConn) -> Result<Status, Status> {
     let query_result = diesel::insert_into(tasks::table)
         .values(&InsertableTask::from_task(task.into_inner()))
         .get_result::<Task>(&*conn);
