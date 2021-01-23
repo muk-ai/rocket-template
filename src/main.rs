@@ -31,7 +31,8 @@ fn main() {
                 params::params,
                 tasks::tasks_index,
                 tasks::tasks_get,
-                tasks::tasks_post
+                tasks::tasks_post,
+                tasks::tasks_delete
             ],
         )
         .mount(
