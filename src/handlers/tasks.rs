@@ -60,7 +60,7 @@ pub fn tasks_post(task: Json<TaskDescriptionData>, conn: DbConn) -> Result<Statu
 
 #[derive(Deserialize, AsChangeset)]
 #[table_name = "tasks"]
-pub struct TaskCompletedData {
+pub struct TaskChangeset {
     completed: Option<bool>,
     description: Option<String>,
 }
@@ -68,7 +68,7 @@ pub struct TaskCompletedData {
 #[patch("/tasks/<id>", format = "application/json", data = "<task>")]
 pub fn tasks_update(
     id: i32,
-    task: Json<TaskCompletedData>,
+    task: Json<TaskChangeset>,
     conn: DbConn,
 ) -> Result<Json<Task>, Status> {
     let query_result = diesel::update(tasks::table.find(id))
