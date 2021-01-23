@@ -57,3 +57,17 @@ pub fn tasks_post(task: Json<TaskDescriptionData>, conn: DbConn) -> Result<Statu
         .map(|_task| Status::Created)
         .map_err(|_error| Status::InternalServerError)
 }
+
+#[delete("/tasks/<id>")]
+pub fn tasks_delete(id: i32, conn: DbConn) -> Result<Status, Status> {
+    match tasks::table.find(id).get_result::<Task>(&*conn) {
+        Ok(_) => diesel::delete(tasks::table.find(id))
+            .execute(&*conn)
+            .map(|_| Status::NoContent)
+            .map_err(|_| Status::InternalServerError),
+        Err(error) => match error {
+            Error::NotFound => Err(Status::NotFound),
+            _ => Err(Status::InternalServerError),
+        },
+    }
+}
