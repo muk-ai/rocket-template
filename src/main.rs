@@ -32,6 +32,7 @@ fn main() {
                 tasks::tasks_index,
                 tasks::tasks_get,
                 tasks::tasks_post,
+                tasks::tasks_update,
                 tasks::tasks_delete
             ],
         )

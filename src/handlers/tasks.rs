@@ -58,6 +58,30 @@ pub fn tasks_post(task: Json<TaskDescriptionData>, conn: DbConn) -> Result<Statu
         .map_err(|_error| Status::InternalServerError)
 }
 
+#[derive(Deserialize, AsChangeset)]
+#[table_name = "tasks"]
+pub struct TaskChangeset {
+    completed: Option<bool>,
+    description: Option<String>,
+}
+
+#[patch("/tasks/<id>", format = "application/json", data = "<task>")]
+pub fn tasks_update(
+    id: i32,
+    task: Json<TaskChangeset>,
+    conn: DbConn,
+) -> Result<Json<Task>, Status> {
+    let query_result = diesel::update(tasks::table.find(id))
+        .set(task.into_inner())
+        .get_result(&*conn);
+    query_result
+        .map(|task| Json(task))
+        .map_err(|error| match error {
+            Error::NotFound => Status::NotFound,
+            _ => Status::InternalServerError,
+        })
+}
+
 #[delete("/tasks/<id>")]
 pub fn tasks_delete(id: i32, conn: DbConn) -> Result<Status, Status> {
     match tasks::table.find(id).get_result::<Task>(&*conn) {
