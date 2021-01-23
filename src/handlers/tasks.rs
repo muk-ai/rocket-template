@@ -8,6 +8,14 @@ use crate::connection::DbConn;
 use crate::schema::tasks;
 use crate::task::Task;
 
+#[get("/tasks")]
+pub fn tasks_index(conn: DbConn) -> Result<Json<Vec<Task>>, Status> {
+    let query_result: QueryResult<Vec<Task>> = tasks::table.load::<Task>(&*conn);
+    query_result
+        .map(|task| Json(task))
+        .map_err(|_error| Status::InternalServerError)
+}
+
 #[get("/tasks/<id>")]
 pub fn tasks_get(id: i32, conn: DbConn) -> Result<Json<Task>, Status> {
     let query_result: QueryResult<Task> = tasks::table.find(id).get_result::<Task>(&*conn);
