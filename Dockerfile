@@ -16,5 +16,7 @@ RUN cargo build --release
 
 FROM debian:10.6-slim
 
+RUN apt-get update -qq \
+  && apt-get install -y libpq-dev
 COPY --from=builder /app/target/release/hello-rust /app/target/release/hello-rust
 CMD ROCKET_PORT=$PORT /app/target/release/hello-rust
