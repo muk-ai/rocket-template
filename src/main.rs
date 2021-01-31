@@ -4,10 +4,15 @@
 extern crate rocket;
 #[macro_use]
 extern crate diesel;
+#[macro_use]
+extern crate diesel_migrations;
 
+use rocket::{fairing::AdHoc, Rocket};
 use rocket_contrib::serve::StaticFiles;
 
 mod connection;
+use connection::PgPool;
+
 mod schema;
 mod task;
 
@@ -17,12 +22,28 @@ use handlers::hello_world;
 use handlers::params;
 use handlers::tasks;
 
+embed_migrations!();
+
+fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
+    let pool = rocket
+        .state::<PgPool>()
+        .expect("could't get connection pool.");
+    match pool.get() {
+        Ok(conn) => match embedded_migrations::run(&*conn) {
+            Ok(()) => Ok(rocket),
+            Err(_e) => Err(rocket),
+        },
+        Err(_e) => Err(rocket),
+    }
+}
+
 fn main() {
     use dotenv::dotenv;
     dotenv().ok();
 
     rocket::ignite()
         .manage(connection::init_pool())
+        .attach(AdHoc::on_attach("Database Migrations", run_db_migrations))
         .mount("/", routes![hello_world::index])
         .mount(
             "/",
