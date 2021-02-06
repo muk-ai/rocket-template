@@ -43,3 +43,4 @@ tags:
   - gcp-cloud-build-deploy-cloud-run
   - gcp-cloud-build-deploy-cloud-run-managed
   - rocket-template
+timeout: 1200s # default 600s
