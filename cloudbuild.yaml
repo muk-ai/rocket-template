@@ -19,8 +19,6 @@ steps:
       - '--quiet'
     id: Deploy
     entrypoint: gcloud
-images:
-  - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
 options:
   substitutionOption: ALLOW_LOOSE
 substitutions:
