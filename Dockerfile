@@ -12,6 +12,7 @@ RUN cargo build --release
 RUN rm -f target/release/deps/hello_rust*
 
 COPY ./src ./src
+COPY ./migrations ./migrations
 RUN cargo build --release
 
 FROM debian:10.6-slim
