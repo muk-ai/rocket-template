@@ -9,7 +9,7 @@ COPY ./Cargo.toml ./Cargo.lock ./
 RUN mkdir src
 RUN echo "fn main(){}" > src/main.rs
 RUN cargo build --release
-RUN rm -f target/release/deps/hello_rust*
+RUN rm -f target/release/deps/rocket_template_app*
 
 COPY ./src ./src
 COPY ./migrations ./migrations
@@ -22,6 +22,6 @@ RUN apt-get update -qq \
 
 WORKDIR /app
 
-COPY --from=builder /app/target/release/hello-rust /app/target/release/hello-rust
+COPY --from=builder /app/target/release/rocket-template-app /app/target/release/rocket-template-app
 
-CMD ROCKET_PORT=$PORT /app/target/release/hello-rust
+CMD ROCKET_PORT=$PORT /app/target/release/rocket-template-app

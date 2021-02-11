@@ -1,5 +1,5 @@
 [package]
-name = "hello-rust"
+name = "rocket-template-app"
 version = "0.1.0"
 authors = ["Kenta Mukai <r@muk.ai>"]
 edition = "2018"
