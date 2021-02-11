@@ -350,20 +350,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d7afe4a420e3fe79967a00898cc1f4db7c8a49a9333a29f8a4bd76a253d5cd04"
 
 [[package]]
-name = "hello-rust"
-version = "0.1.0"
-dependencies = [
- "diesel",
- "diesel_migrations",
- "dotenv",
- "r2d2",
- "rocket",
- "rocket_contrib",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "hermit-abi"
 version = "0.1.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -864,6 +850,20 @@ dependencies = [
  "toml",
  "version_check 0.9.2",
  "yansi",
+]
+
+[[package]]
+name = "rocket-template-app"
+version = "0.1.0"
+dependencies = [
+ "diesel",
+ "diesel_migrations",
+ "dotenv",
+ "r2d2",
+ "rocket",
+ "rocket_contrib",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
