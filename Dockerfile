@@ -23,5 +23,6 @@ RUN apt-get update -qq \
 WORKDIR /app
 
 COPY --from=builder /app/target/release/rocket-template-app /app/target/release/rocket-template-app
+COPY ./public /app/public
 
 CMD ROCKET_PORT=$PORT /app/target/release/rocket-template-app

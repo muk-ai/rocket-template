@@ -41,6 +41,9 @@ fn main() {
     use dotenv::dotenv;
     dotenv().ok();
 
+    let mut current_dir = std::env::current_dir().expect("couldn't get current directory.");
+    current_dir.push("public");
+
     rocket::ignite()
         .manage(connection::init_pool())
         .attach(AdHoc::on_attach("Database Migrations", run_db_migrations))
@@ -57,9 +60,6 @@ fn main() {
                 tasks::tasks_delete
             ],
         )
-        .mount(
-            "/public",
-            StaticFiles::from(concat!(env!("CARGO_MANIFEST_DIR"), "/public")),
-        )
+        .mount("/public", StaticFiles::from(current_dir))
         .launch();
 }
