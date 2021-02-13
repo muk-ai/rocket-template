@@ -10,6 +10,8 @@ extern crate diesel_migrations;
 use rocket::{fairing::AdHoc, Rocket};
 use rocket_contrib::serve::StaticFiles;
 
+mod cors;
+
 mod connection;
 use connection::PgPool;
 
@@ -47,6 +49,7 @@ fn main() {
     rocket::ignite()
         .manage(connection::init_pool())
         .attach(AdHoc::on_attach("Database Migrations", run_db_migrations))
+        .attach(cors::CorsFairing)
         .mount("/", routes![hello_world::index])
         .mount(
             "/",
