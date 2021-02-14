@@ -11,6 +11,8 @@ use rocket::{fairing::AdHoc, Rocket};
 use rocket_contrib::serve::StaticFiles;
 
 mod config;
+use config::CONFIG;
+
 mod cors;
 
 mod connection;
@@ -41,9 +43,6 @@ fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
 }
 
 fn main() {
-    let mut current_dir = std::env::current_dir().expect("couldn't get current directory.");
-    current_dir.push("public");
-
     rocket::ignite()
         .manage(connection::init_pool())
         .attach(AdHoc::on_attach("Database Migrations", run_db_migrations))
@@ -61,6 +60,6 @@ fn main() {
                 tasks::tasks_delete
             ],
         )
-        .mount("/public", StaticFiles::from(current_dir))
+        .mount("/public", StaticFiles::from(&CONFIG.public_dir))
         .launch();
 }
