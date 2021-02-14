@@ -3,6 +3,8 @@ use rocket::http::Header;
 use rocket::{http::Method, http::Status, Request, Response};
 use std::io::Cursor;
 
+use crate::config::CONFIG;
+
 pub struct CorsFairing;
 
 impl Fairing for CorsFairing {
@@ -14,7 +16,10 @@ impl Fairing for CorsFairing {
     }
 
     fn on_response(&self, request: &Request, response: &mut Response) {
-        response.set_header(Header::new("Access-Control-Allow-Origin", allowed_origin()));
+        response.set_header(Header::new(
+            "Access-Control-Allow-Origin",
+            &CONFIG.allowed_origin,
+        ));
         response.set_header(Header::new(
             "Access-Control-Allow-Methods",
             "DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT",
@@ -28,8 +33,4 @@ impl Fairing for CorsFairing {
             response.set_sized_body(Cursor::new(""));
         }
     }
-}
-
-fn allowed_origin() -> String {
-    std::env::var("ALLOWED_ORIGIN").expect("ALLOWED_ORIGIN must be set")
 }
