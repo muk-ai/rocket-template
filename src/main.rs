@@ -10,6 +10,7 @@ extern crate diesel_migrations;
 use rocket::{fairing::AdHoc, Rocket};
 use rocket_contrib::serve::StaticFiles;
 
+mod config;
 mod cors;
 
 mod connection;
@@ -40,9 +41,6 @@ fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
 }
 
 fn main() {
-    use dotenv::dotenv;
-    dotenv().ok();
-
     let mut current_dir = std::env::current_dir().expect("couldn't get current directory.");
     current_dir.push("public");
 

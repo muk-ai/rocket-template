@@ -3,21 +3,18 @@ use r2d2;
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
 use rocket::State;
-use std::env;
 use std::ops::Deref;
+
+use crate::config::CONFIG;
 
 pub type PgPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 pub fn init_pool() -> PgPool {
-    let manager = ConnectionManager::<PgConnection>::new(database_url());
+    let manager = ConnectionManager::<PgConnection>::new(&CONFIG.database_url);
     PgPool::builder()
         .max_size(4)
         .build(manager)
         .expect("Failed to create pool")
-}
-
-fn database_url() -> String {
-    env::var("DATABASE_URL").expect("DATABASE_URL must be set")
 }
 
 pub struct DbConn(pub r2d2::PooledConnection<ConnectionManager<PgConnection>>);
