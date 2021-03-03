@@ -22,6 +22,7 @@ mod schema;
 mod task;
 
 mod handlers;
+use handlers::auth;
 use handlers::count;
 use handlers::hello_world;
 use handlers::params;
@@ -60,6 +61,7 @@ fn main() {
                 tasks::tasks_delete
             ],
         )
+        .mount("/", routes![auth::get_auth_me])
         .mount("/public", StaticFiles::from(&CONFIG.public_dir))
         .launch();
 }
