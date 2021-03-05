@@ -1,3 +1,4 @@
+use jsonwebtoken;
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
 use serde::{Deserialize, Serialize};
@@ -35,5 +36,12 @@ impl<'a, 'r> FromRequest<'a, 'r> for IdToken {
 
 #[get("/auth/me")]
 pub fn get_auth_me(id_token: IdToken) -> String {
+    let header = match jsonwebtoken::decode_header(&id_token.0) {
+        Ok(header) => header,
+        Err(_) => return "couldn't decode header".to_string(),
+    };
+    if header.alg != jsonwebtoken::Algorithm::RS256 {
+        return "invalid algorithm".to_string();
+    }
     id_token.0
 }
