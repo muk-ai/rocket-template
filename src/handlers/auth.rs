@@ -1,7 +1,19 @@
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
+use serde::{Deserialize, Serialize};
 
 pub struct IdToken(String);
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Claims {
+    pub aud: String,
+    pub exp: usize,
+    pub iat: usize,
+    pub iss: String,
+    pub nbf: usize,
+    pub sub: String,
+    pub uid: Option<String>,
+}
 
 impl<'a, 'r> FromRequest<'a, 'r> for IdToken {
     type Error = ();
