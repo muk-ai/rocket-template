@@ -3,6 +3,8 @@ use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
 use serde::{Deserialize, Serialize};
 
+use crate::jwks::FIREBASE_JWKS;
+
 pub struct IdToken(String);
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -43,5 +45,13 @@ pub fn get_auth_me(id_token: IdToken) -> String {
     if header.alg != jsonwebtoken::Algorithm::RS256 {
         return "invalid algorithm".to_string();
     }
-    id_token.0
+    let kid = header.kid.unwrap_or_else(|| {
+        return "kid is not found".to_string();
+    });
+    let jwks = FIREBASE_JWKS.get().unwrap();
+    let jwk = match jwks.get_key(kid) {
+        Some(jwk) => jwk,
+        None => return "JWK is not found".to_string(),
+    };
+    jwk.n.clone()
 }

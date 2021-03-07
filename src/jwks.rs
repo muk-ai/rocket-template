@@ -12,6 +12,15 @@ pub struct JwkSet {
     keys: Vec<Jwk>,
 }
 
+impl JwkSet {
+    pub fn get_key(&self, kid: String) -> Option<&Jwk> {
+        match self.keys.iter().find(|jwk| jwk.kid == kid) {
+            Some(jwk) => Some(&jwk),
+            None => None,
+        }
+    }
+}
+
 #[derive(Debug, Deserialize)]
 pub struct Jwk {
     pub e: String,
