@@ -7,16 +7,14 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
 
-use reqwest;
 use rocket::{fairing::AdHoc, Rocket};
 use rocket_contrib::serve::StaticFiles;
 
 mod config;
 use config::CONFIG;
-const JWKS_URL: &str =
-    "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com";
 
 mod cors;
+mod fetch_jwks;
 
 mod connection;
 use connection::PgPool;
@@ -46,17 +44,10 @@ fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
     }
 }
 
-fn fetch_jwks(rocket: Rocket) -> Result<Rocket, Rocket> {
-    if let Ok(response) = reqwest::blocking::get(JWKS_URL) {
-        println!("{:?}", response)
-    }
-    Ok(rocket)
-}
-
 fn main() {
     rocket::ignite()
         .manage(connection::init_pool())
-        .attach(AdHoc::on_attach("Fetch JWKS", fetch_jwks))
+        .attach(fetch_jwks::FetchJwksFairing)
         .attach(AdHoc::on_attach("Database Migrations", run_db_migrations))
         .attach(cors::CorsFairing)
         .mount("/", routes![hello_world::index])
