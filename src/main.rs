@@ -14,7 +14,7 @@ mod config;
 use config::CONFIG;
 
 mod cors;
-mod fetch_jwks;
+mod jwks;
 
 mod connection;
 use connection::PgPool;
@@ -47,7 +47,7 @@ fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
 fn main() {
     rocket::ignite()
         .manage(connection::init_pool())
-        .attach(fetch_jwks::FetchJwksFairing)
+        .attach(jwks::FetchJwksFairing)
         .attach(AdHoc::on_attach("Database Migrations", run_db_migrations))
         .attach(cors::CorsFairing)
         .mount("/", routes![hello_world::index])
