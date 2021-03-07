@@ -1,8 +1,9 @@
-use jsonwebtoken;
+use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
 use serde::{Deserialize, Serialize};
 
+use crate::config::CONFIG;
 use crate::jwks::FIREBASE_JWKS;
 
 pub struct IdToken(String);
@@ -13,9 +14,7 @@ pub struct Claims {
     pub exp: usize,
     pub iat: usize,
     pub iss: String,
-    pub nbf: usize,
     pub sub: String,
-    pub uid: Option<String>,
 }
 
 impl<'a, 'r> FromRequest<'a, 'r> for IdToken {
@@ -38,13 +37,10 @@ impl<'a, 'r> FromRequest<'a, 'r> for IdToken {
 
 #[get("/auth/me")]
 pub fn get_auth_me(id_token: IdToken) -> String {
-    let header = match jsonwebtoken::decode_header(&id_token.0) {
+    let header = match decode_header(&id_token.0) {
         Ok(header) => header,
         Err(_) => return "couldn't decode header".to_string(),
     };
-    if header.alg != jsonwebtoken::Algorithm::RS256 {
-        return "invalid algorithm".to_string();
-    }
     let kid = header.kid.unwrap_or_else(|| {
         return "kid is not found".to_string();
     });
@@ -53,5 +49,21 @@ pub fn get_auth_me(id_token: IdToken) -> String {
         Some(jwk) => jwk,
         None => return "JWK is not found".to_string(),
     };
-    jwk.n.clone()
+    let project_id = &CONFIG.firebase_project_id;
+    let mut validation = Validation {
+        validate_exp: true,
+        iss: Some("https://securetoken.google.com/".to_string() + project_id),
+        ..Validation::new(Algorithm::RS256)
+    };
+    validation.set_audience(&[project_id]);
+    let decoding_key = DecodingKey::from_rsa_components(&jwk.n, &jwk.e);
+    let decoded_token = decode::<Claims>(&id_token.0, &decoding_key, &validation);
+    let token_data = match decoded_token {
+        Ok(token) => token,
+        Err(e) => {
+            println!("{}", e);
+            return "couldn't decode".to_string();
+        }
+    };
+    format!("{:?}", token_data)
 }
