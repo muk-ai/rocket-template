@@ -7,6 +7,7 @@ pub struct Config {
     pub database_url: String,
     pub allowed_origin: String,
     pub public_dir: String,
+    pub firebase_project_id: String,
 }
 
 impl Config {
@@ -17,11 +18,14 @@ impl Config {
         let allowed_origin =
             env::var("ALLOWED_ORIGIN").expect("environment variable ALLOWED_ORIGIN is not defined");
         let public_dir = public_dir();
+        let firebase_project_id = env::var("FIREBASE_PROJECT_ID")
+            .expect("environment variable FIREBASE_PROJECT_ID is not defined");
 
         Config {
             database_url,
             allowed_origin,
             public_dir,
+            firebase_project_id,
         }
     }
 }
