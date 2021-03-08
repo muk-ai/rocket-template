@@ -22,6 +22,8 @@ use connection::PgPool;
 mod schema;
 mod task;
 
+mod firebase;
+
 mod handlers;
 use handlers::auth;
 use handlers::count;
