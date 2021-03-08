@@ -1,7 +1,6 @@
-use crate::firebase;
-use crate::id_token::IdToken;
+use crate::user::User;
 
 #[get("/auth/me")]
-pub fn get_auth_me(id_token: IdToken) -> String {
-    firebase::auth::verify_id_token(id_token.0)
+pub fn get_auth_me(user: User) -> String {
+    format!("{:?}", user)
 }
