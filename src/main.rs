@@ -23,6 +23,7 @@ mod schema;
 mod task;
 
 mod firebase;
+mod id_token;
 
 mod handlers;
 use handlers::auth;
