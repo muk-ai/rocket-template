@@ -14,14 +14,20 @@ mod config;
 use config::CONFIG;
 
 mod cors;
+mod jwks;
 
 mod connection;
 use connection::PgPool;
 
+mod models;
 mod schema;
 mod task;
 
+mod firebase;
+mod id_token;
+
 mod handlers;
+use handlers::auth;
 use handlers::count;
 use handlers::hello_world;
 use handlers::params;
@@ -45,6 +51,7 @@ fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
 fn main() {
     rocket::ignite()
         .manage(connection::init_pool())
+        .attach(jwks::FetchJwksFairing)
         .attach(AdHoc::on_attach("Database Migrations", run_db_migrations))
         .attach(cors::CorsFairing)
         .mount("/", routes![hello_world::index])
@@ -60,6 +67,7 @@ fn main() {
                 tasks::tasks_delete
             ],
         )
+        .mount("/", routes![auth::get_auth_me])
         .mount("/public", StaticFiles::from(&CONFIG.public_dir))
         .launch();
 }
