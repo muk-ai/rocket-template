@@ -19,9 +19,9 @@ mod jwks;
 mod connection;
 use connection::PgPool;
 
+mod models;
 mod schema;
 mod task;
-mod user;
 
 mod firebase;
 mod id_token;
