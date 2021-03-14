@@ -18,7 +18,8 @@ RUN cargo build --release
 FROM debian:10.6-slim
 
 RUN apt-get update -qq \
-  && apt-get install -y libpq-dev
+  && apt-get install -y libpq-dev \
+  && apt-get install -y --no-install-recommends ca-certificates
 
 WORKDIR /app
 
