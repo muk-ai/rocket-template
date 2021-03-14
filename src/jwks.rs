@@ -42,10 +42,14 @@ impl Fairing for FetchJwksFairing {
 
     fn on_attach(&self, rocket: Rocket) -> Result<Rocket, Rocket> {
         let mut jwk_set: Option<JwkSet> = None;
-        if let Ok(response) = reqwest::blocking::get(JWKS_URL) {
-            if let Ok(json) = response.json::<JwkSet>() {
-                jwk_set = Some(json);
-            }
+        match reqwest::blocking::get(JWKS_URL) {
+            Ok(response) => match response.json::<JwkSet>() {
+                Ok(json) => jwk_set = Some(json),
+                Err(err) => {
+                    println!("{:?}", err);
+                }
+            },
+            Err(err) => println!("{:?}", err),
         }
         let jwk_set = jwk_set.expect(&format!("couldn't get JWK Set from {}", JWKS_URL));
         FIREBASE_JWKS
