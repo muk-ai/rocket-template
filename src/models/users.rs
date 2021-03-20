@@ -6,4 +6,5 @@ pub mod repository;
 #[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct User {
     pub uid: String,
+    pub created_at: chrono::NaiveDateTime,
 }
