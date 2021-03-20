@@ -3,12 +3,14 @@ table! {
         id -> Int4,
         description -> Text,
         completed -> Bool,
+        created_at -> Timestamptz,
     }
 }
 
 table! {
     users (uid) {
         uid -> Varchar,
+        created_at -> Timestamptz,
     }
 }
 
