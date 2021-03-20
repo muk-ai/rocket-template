@@ -18,4 +18,4 @@ services:
     environment:
       POSTGRES_DB: diesel_demo
       POSTGRES_HOST_AUTH_METHOD: trust
-
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --no-locale"
