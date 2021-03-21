@@ -17,7 +17,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for User {
         match firebase::auth::verify_id_token(id_token.0) {
             Ok(token_data) => {
                 let uid = token_data.claims.sub;
-                match repository::find(uid, conn) {
+                match repository::find(uid, &conn) {
                     Ok(user) => Outcome::Success(user),
                     Err(_) => Outcome::Failure((Status::Unauthorized, ())),
                 }
