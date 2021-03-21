@@ -67,7 +67,7 @@ fn main() {
                 tasks::tasks_delete
             ],
         )
-        .mount("/", routes![auth::get_auth_me])
+        .mount("/", routes![auth::get_auth_me, auth::post_auth_me])
         .mount("/public", StaticFiles::from(&CONFIG.public_dir))
         .launch();
 }
