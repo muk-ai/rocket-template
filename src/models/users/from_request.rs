@@ -1,3 +1,4 @@
+use diesel::result::OptionalExtension;
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
 
@@ -17,8 +18,9 @@ impl<'a, 'r> FromRequest<'a, 'r> for User {
         match firebase::auth::verify_id_token(id_token.0) {
             Ok(token_data) => {
                 let uid = token_data.claims.sub;
-                match repository::find(uid, &conn) {
-                    Ok(user) => Outcome::Success(user),
+                match repository::find(uid, &conn).optional() {
+                    Ok(Some(user)) => Outcome::Success(user),
+                    Ok(None) => Outcome::Failure((Status::NotFound, ())),
                     Err(_) => Outcome::Failure((Status::Unauthorized, ())),
                 }
             }
