@@ -11,6 +11,7 @@ table! {
     users (uid) {
         uid -> Varchar,
         created_at -> Timestamptz,
+        id -> Uuid,
     }
 }
 
