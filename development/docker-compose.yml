@@ -22,3 +22,4 @@ services:
       POSTGRES_USER: diesel_demo
       POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --no-locale"
+    restart: unless-stopped
