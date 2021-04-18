@@ -6,4 +6,5 @@ pub struct Task {
     pub description: String,
     pub completed: bool,
     pub created_at: chrono::NaiveDateTime,
+    pub user_id: uuid::Uuid,
 }

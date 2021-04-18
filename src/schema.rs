@@ -4,6 +4,7 @@ table! {
         description -> Text,
         completed -> Bool,
         created_at -> Timestamptz,
+        user_id -> Uuid,
     }
 }
 
