@@ -5,12 +5,13 @@ use rocket_contrib::json::Json;
 use serde::Deserialize;
 
 use crate::connection::DbConn;
+use crate::models::users::User;
 use crate::schema::tasks;
 use crate::task::Task;
 
 #[get("/tasks")]
-pub fn tasks_index(conn: DbConn) -> Result<Json<Vec<Task>>, Status> {
-    let query_result: QueryResult<Vec<Task>> = tasks::table.load::<Task>(&*conn);
+pub fn tasks_index(user: User, conn: DbConn) -> Result<Json<Vec<Task>>, Status> {
+    let query_result: QueryResult<Vec<Task>> = Task::belonging_to(&user).load::<Task>(&*conn);
     query_result
         .map(|task| Json(task))
         .map_err(|_error| Status::InternalServerError)
