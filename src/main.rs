@@ -38,13 +38,21 @@ embed_migrations!();
 fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
     let pool = rocket
         .state::<PgPool>()
-        .expect("could't get connection pool.");
+        .expect("couldn't get connection pool from state");
     match pool.get() {
         Ok(conn) => match embedded_migrations::run(&*conn) {
             Ok(()) => Ok(rocket),
-            Err(_e) => Err(rocket),
+            Err(e) => {
+                eprintln!("migration failed");
+                eprintln!("Error: {}", e);
+                Err(rocket)
+            }
         },
-        Err(_e) => Err(rocket),
+        Err(e) => {
+            eprintln!("couldn't get connection pool");
+            eprintln!("Error: {}", e);
+            Err(rocket)
+        }
     }
 }
 
