@@ -3,7 +3,7 @@ steps:
     args:
       - --destination=$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA
       - --cache=true
-      - --cache-ttl=6h
+      - --cache-ttl=48h
     id: KanikoBuild
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk
     args:
