@@ -80,10 +80,23 @@ pub struct TaskChangeset {
 
 #[patch("/tasks/<id>", format = "application/json", data = "<task>")]
 pub fn tasks_update(
+    user: User,
     id: i32,
     task: Json<TaskChangeset>,
     conn: DbConn,
 ) -> Result<Json<Task>, Status> {
+    let query_result: QueryResult<Task> = tasks::table.find(id).get_result::<Task>(&*conn);
+    if let Err(error) = query_result {
+        return match error {
+            Error::NotFound => Err(Status::NotFound),
+            _ => Err(Status::InternalServerError),
+        };
+    }
+    let found_task = query_result.unwrap();
+    if found_task.user_id != user.id {
+        return Err(Status::Forbidden);
+    }
+
     let query_result = diesel::update(tasks::table.find(id))
         .set(task.into_inner())
         .get_result(&*conn);
