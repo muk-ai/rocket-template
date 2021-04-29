@@ -96,15 +96,21 @@ pub fn tasks_update(
 }
 
 #[delete("/tasks/<id>")]
-pub fn tasks_delete(id: i32, conn: DbConn) -> Result<Status, Status> {
-    match tasks::table.find(id).get_result::<Task>(&*conn) {
-        Ok(_) => diesel::delete(tasks::table.find(id))
-            .execute(&*conn)
-            .map(|_| Status::NoContent)
-            .map_err(|_| Status::InternalServerError),
-        Err(error) => match error {
+pub fn tasks_delete(user: User, id: i32, conn: DbConn) -> Result<Status, Status> {
+    let query_result: QueryResult<Task> = tasks::table.find(id).get_result::<Task>(&*conn);
+    if let Err(error) = query_result {
+        return match error {
             Error::NotFound => Err(Status::NotFound),
             _ => Err(Status::InternalServerError),
-        },
+        };
     }
+    let task = query_result.unwrap();
+    if task.user_id != user.id {
+        return Err(Status::Forbidden);
+    }
+
+    diesel::delete(tasks::table.find(id))
+        .execute(&*conn)
+        .map(|_| Status::NoContent)
+        .map_err(|_| Status::InternalServerError)
 }
