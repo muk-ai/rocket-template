@@ -18,14 +18,20 @@ pub fn tasks_index(user: User, conn: DbConn) -> Result<Json<Vec<Task>>, Status> 
 }
 
 #[get("/tasks/<id>")]
-pub fn tasks_get(id: i32, conn: DbConn) -> Result<Json<Task>, Status> {
+pub fn tasks_get(user: User, id: i32, conn: DbConn) -> Result<Json<Task>, Status> {
     let query_result: QueryResult<Task> = tasks::table.find(id).get_result::<Task>(&*conn);
-    query_result
-        .map(|task| Json(task))
-        .map_err(|error| match error {
-            Error::NotFound => Status::NotFound,
-            _ => Status::InternalServerError,
-        })
+    if let Err(error) = query_result {
+        return match error {
+            Error::NotFound => Err(Status::NotFound),
+            _ => Err(Status::InternalServerError),
+        };
+    }
+    let task = query_result.unwrap();
+    if task.user_id == user.id {
+        Ok(Json(task))
+    } else {
+        Err(Status::Forbidden)
+    }
 }
 
 #[derive(Insertable)]
