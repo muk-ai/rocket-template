@@ -39,13 +39,15 @@ pub fn tasks_get(user: User, id: i32, conn: DbConn) -> Result<Json<Task>, Status
 struct InsertableTask {
     description: String,
     completed: bool,
+    user_id: uuid::Uuid,
 }
 
 impl InsertableTask {
-    fn from_task(task: TaskDescriptionData) -> InsertableTask {
+    fn from_task(task: TaskDescriptionData, user_id: uuid::Uuid) -> InsertableTask {
         InsertableTask {
             description: task.description,
             completed: false,
+            user_id,
         }
     }
 }
@@ -56,9 +58,13 @@ pub struct TaskDescriptionData {
 }
 
 #[post("/tasks", format = "application/json", data = "<task>")]
-pub fn tasks_post(task: Json<TaskDescriptionData>, conn: DbConn) -> Result<Status, Status> {
+pub fn tasks_post(
+    user: User,
+    task: Json<TaskDescriptionData>,
+    conn: DbConn,
+) -> Result<Status, Status> {
     let query_result = diesel::insert_into(tasks::table)
-        .values(&InsertableTask::from_task(task.into_inner()))
+        .values(&InsertableTask::from_task(task.into_inner(), user.id))
         .get_result::<Task>(&*conn);
     query_result
         .map(|_task| Status::Created)
