@@ -5,7 +5,7 @@ use rocket_contrib::json::Json;
 use serde::Deserialize;
 
 use crate::connection::DbConn;
-use crate::models::tasks::Task;
+use crate::models::tasks::{InsertableTask, Task, TaskDescriptionData};
 use crate::models::users::User;
 use crate::schema::tasks;
 
@@ -32,29 +32,6 @@ pub fn tasks_get(user: User, id: i32, conn: DbConn) -> Result<Json<Task>, Status
     } else {
         Err(Status::Forbidden)
     }
-}
-
-#[derive(Insertable)]
-#[table_name = "tasks"]
-struct InsertableTask {
-    description: String,
-    completed: bool,
-    user_id: uuid::Uuid,
-}
-
-impl InsertableTask {
-    fn from_task(task: TaskDescriptionData, user_id: uuid::Uuid) -> InsertableTask {
-        InsertableTask {
-            description: task.description,
-            completed: false,
-            user_id,
-        }
-    }
-}
-
-#[derive(Deserialize)]
-pub struct TaskDescriptionData {
-    description: String,
 }
 
 #[post("/tasks", format = "application/json", data = "<task>")]
