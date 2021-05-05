@@ -41,7 +41,10 @@ pub fn tasks_post(
     conn: DbConn,
 ) -> Result<Status, Status> {
     let query_result = diesel::insert_into(tasks::table)
-        .values(&InsertableTask::from_task(task.into_inner(), user.id))
+        .values(&InsertableTask::build(
+            task.into_inner().description,
+            user.id,
+        ))
         .get_result::<Task>(&*conn);
     query_result
         .map(|_task| Status::Created)

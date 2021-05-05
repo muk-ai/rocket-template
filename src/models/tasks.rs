@@ -21,16 +21,16 @@ pub struct InsertableTask {
 }
 
 impl InsertableTask {
-    pub fn from_task(task: TaskDescriptionData, user_id: uuid::Uuid) -> InsertableTask {
+    pub fn build(description: String, user_id: uuid::Uuid) -> InsertableTask {
         InsertableTask {
-            description: task.description,
-            completed: false,
+            description,
             user_id,
+            completed: false,
         }
     }
 }
 
 #[derive(Deserialize)]
 pub struct TaskDescriptionData {
-    description: String,
+    pub description: String,
 }
