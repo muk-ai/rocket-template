@@ -21,7 +21,6 @@ use connection::PgPool;
 
 mod models;
 mod schema;
-mod task;
 
 mod firebase;
 mod id_token;

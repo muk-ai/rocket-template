@@ -5,9 +5,9 @@ use rocket_contrib::json::Json;
 use serde::Deserialize;
 
 use crate::connection::DbConn;
+use crate::models::tasks::Task;
 use crate::models::users::User;
 use crate::schema::tasks;
-use crate::task::Task;
 
 #[get("/tasks")]
 pub fn tasks_index(user: User, conn: DbConn) -> Result<Json<Vec<Task>>, Status> {
