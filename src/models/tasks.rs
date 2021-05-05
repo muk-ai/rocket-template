@@ -29,8 +29,3 @@ impl InsertableTask {
         }
     }
 }
-
-#[derive(Deserialize)]
-pub struct TaskDescriptionData {
-    pub description: String,
-}
