@@ -10,8 +10,9 @@ impl<'a, 'r> FromRequest<'a, 'r> for IdToken {
         let mut bearer_token: Option<String> = None;
         if let Some(authz_header) = request.headers().get_one("Authorization") {
             if authz_header.starts_with("Bearer ") {
-                let token = authz_header[6..].trim();
-                bearer_token = Some(token.to_string());
+                bearer_token = authz_header
+                    .split_once(' ')
+                    .map(|(_, token)| token.trim().to_string());
             }
         }
         match bearer_token {
