@@ -1,6 +1,7 @@
 use diesel::result::OptionalExtension;
 use rocket::http::Status;
-use rocket_contrib::json::Json;
+use rocket::response::status;
+use rocket_contrib::json::{Json, JsonValue};
 
 use crate::connection::DbConn;
 use crate::firebase;
@@ -14,18 +15,38 @@ pub fn get_auth_me(user: User) -> Json<User> {
 }
 
 #[post("/auth/me")]
-pub fn post_auth_me(id_token: IdToken, conn: DbConn) -> Result<Status, Status> {
-    firebase::auth::verify_id_token(id_token.0)
-        .or(Err(Status::Unauthorized))
-        .map(|token_data| token_data.claims.sub)
-        .and_then(
-            |uid: String| match users::repository::find(uid.clone(), &conn).optional() {
-                Ok(Some(_)) => Err(Status::Conflict),
-                Ok(None) => match users::repository::insert(uid, &conn) {
-                    Ok(_) => Ok(Status::Created),
-                    Err(_) => Err(Status::InternalServerError),
-                },
-                Err(_) => Err(Status::InternalServerError),
-            },
-        )
+pub fn post_auth_me(id_token: IdToken, conn: DbConn) -> Result<Status, status::Custom<JsonValue>> {
+    let token_result = firebase::auth::verify_id_token(id_token.0);
+    if let Err(message) = token_result {
+        return Err(json_error(Status::Unauthorized, message));
+    }
+
+    let token_data = token_result.unwrap();
+    let uid = token_data.claims.sub;
+    match users::repository::find(uid.clone(), &conn).optional() {
+        Ok(Some(_)) => Err(json_error(Status::Conflict, "conflict".to_string())),
+        Ok(None) => match users::repository::insert(uid, &conn) {
+            Ok(_) => Ok(Status::Created),
+            Err(_) => Err(json_error(
+                Status::InternalServerError,
+                "internal server error".to_string(),
+            )),
+        },
+        Err(_) => Err(json_error(
+            Status::InternalServerError,
+            "internal server error".to_string(),
+        )),
+    }
+}
+
+fn json_error(status: Status, message: String) -> status::Custom<JsonValue> {
+    let json_value = json!({
+          "errors": [
+              {
+                  "detail": message
+              }
+          ]
+      }
+    );
+    status::Custom(status, json_value)
 }
