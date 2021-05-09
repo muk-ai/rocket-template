@@ -1,5 +1,6 @@
 use diesel::result::OptionalExtension;
 use rocket::http::Status;
+use rocket_contrib::json::Json;
 
 use crate::connection::DbConn;
 use crate::firebase;
@@ -8,8 +9,8 @@ use crate::models::users;
 use crate::models::users::User;
 
 #[get("/auth/me")]
-pub fn get_auth_me(user: User) -> String {
-    format!("{:?}", user)
+pub fn get_auth_me(user: User) -> Json<User> {
+    Json(user)
 }
 
 #[post("/auth/me")]
