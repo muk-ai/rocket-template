@@ -14,6 +14,15 @@ impl Fairing for AccessLogFairing {
     }
 
     fn on_response(&self, request: &Request, response: &mut Response) {
+        if let Some(header) = request.headers().get_one("X-Cloud-Trace-Context") {
+            let chunks: Vec<&str> = header.split(&['/', ';'][..]).collect();
+            if let (Some(trace), Some(span)) = (chunks.get(0), chunks.get(1)) {
+                println!("{}", header);
+                println!("{}", trace);
+                println!("{}", span);
+            }
+        }
+
         println!("{}", request.method().as_str());
         println!("{}", response.status().code);
         println!("{}", request.uri());
