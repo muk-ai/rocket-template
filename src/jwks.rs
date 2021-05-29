@@ -3,6 +3,8 @@ use rocket::fairing::{Fairing, Info, Kind};
 use rocket::Rocket;
 use serde::Deserialize;
 
+use crate::log::write_error;
+
 const JWKS_URL: &str =
     "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com";
 pub static FIREBASE_JWKS: OnceCell<JwkSet> = OnceCell::new();
@@ -46,10 +48,10 @@ impl Fairing for FetchJwksFairing {
             Ok(response) => match response.json::<JwkSet>() {
                 Ok(json) => jwk_set = Some(json),
                 Err(err) => {
-                    println!("{:?}", err);
+                    write_error(format!("{:?}", err), None);
                 }
             },
-            Err(err) => println!("{:?}", err),
+            Err(err) => write_error(format!("{:?}", err), None),
         }
         let jwk_set = jwk_set.expect(&format!("couldn't get JWK Set from {}", JWKS_URL));
         FIREBASE_JWKS
