@@ -91,3 +91,30 @@ pub fn write_log(message: impl Into<String>, context: Option<&TraceContext>) {
         println!("{}", log);
     }
 }
+
+pub fn write_error(message: impl Into<String>, context: Option<&TraceContext>) {
+    let message: String = message.into();
+    let log = match context {
+        Some(context) => {
+            json! {
+                {
+                    "severity": "ERROR",
+                    "message": message,
+                    "logging.googleapis.com/trace": context.trace,
+                    "logging.googleapis.com/spanId": context.span_id
+                }
+            }
+        }
+        None => {
+            json! {
+                {
+                    "severity": "ERROR",
+                    "message": message,
+                }
+            }
+        }
+    };
+    if let Ok(log) = serde_json::to_string(&log) {
+        eprintln!("{}", log);
+    }
+}
