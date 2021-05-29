@@ -26,11 +26,11 @@ impl Fairing for LoggingUidFairing {
         let user = request.guard::<User>();
         match user {
             Outcome::Success(user) => {
-                write_log(format!("firebase uid: {}", user.uid), trace_context);
-                write_log(format!("users id: {}", user.id), trace_context);
+                write_info(format!("firebase uid: {}", user.uid), trace_context);
+                write_info(format!("users id: {}", user.id), trace_context);
             }
             _ => {
-                write_log("user is anonymous", trace_context);
+                write_info("user is anonymous", trace_context);
             }
         }
     }
@@ -65,7 +65,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for &'a TraceContext {
     }
 }
 
-pub fn write_log(message: impl Into<String>, context: Option<&TraceContext>) {
+pub fn write_info(message: impl Into<String>, context: Option<&TraceContext>) {
     let message: String = message.into();
     let log = match context {
         Some(context) => {
