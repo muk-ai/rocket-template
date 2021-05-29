@@ -64,7 +64,7 @@ fn main() {
         .attach(jwks::FetchJwksFairing)
         .attach(AdHoc::on_attach("Database Migrations", run_db_migrations))
         .attach(cors::CorsFairing)
-        .attach(log::AccessLogFairing)
+        .attach(log::LoggingUidFairing)
         .mount("/", routes![hello_world::index])
         .mount(
             "/",

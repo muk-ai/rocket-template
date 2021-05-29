@@ -1,39 +1,36 @@
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
-use rocket::Response;
+use rocket::Data;
 use serde_json;
 use serde_json::json;
 
 use crate::config::CONFIG;
+use crate::models::users::User;
 
-pub struct AccessLogFairing;
+pub struct LoggingUidFairing;
 
-impl Fairing for AccessLogFairing {
+impl Fairing for LoggingUidFairing {
     fn info(&self) -> Info {
         Info {
-            name: "Write Access Log",
-            kind: Kind::Response,
+            name: "Logging uid",
+            kind: Kind::Request,
         }
     }
 
-    fn on_response(&self, request: &Request, _response: &mut Response) {
-        if let Some(header) = request.headers().get_one("X-Cloud-Trace-Context") {
-            let chunks: Vec<&str> = header.split(&['/', ';'][..]).collect();
-            if let (Some(trace), Some(span)) = (chunks.get(0), chunks.get(1)) {
-                let trace = format!("projects/{}/traces/{}", &CONFIG.gcp_project_id, trace);
-                let log = json! {
-                    {
-                        "severity": "INFO",
-                        "message": format!("hello, cloud logging. header is {}", header),
-                        "logging.googleapis.com/trace": trace,
-                        "logging.googleapis.com/spanId": span
-                    }
-                };
-
-                if let Ok(log) = serde_json::to_string(&log) {
-                    println!("{}", log);
-                }
+    fn on_request(&self, request: &mut Request, _: &Data) {
+        let trace_context = match request.guard::<&TraceContext>() {
+            Outcome::Success(context) => Some(context),
+            _ => None,
+        };
+        let user = request.guard::<User>();
+        match user {
+            Outcome::Success(user) => {
+                write_log(format!("firebase uid: {}", user.uid), trace_context);
+                write_log(format!("users id: {}", user.id), trace_context);
+            }
+            _ => {
+                write_log("user is anonymous", trace_context);
             }
         }
     }
