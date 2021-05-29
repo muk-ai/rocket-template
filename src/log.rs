@@ -68,7 +68,8 @@ impl<'a, 'r> FromRequest<'a, 'r> for &'a TraceContext {
     }
 }
 
-pub fn write_log(message: &str, context: Option<&TraceContext>) {
+pub fn write_log(message: impl Into<String>, context: Option<&TraceContext>) {
+    let message: String = message.into();
     let log = match context {
         Some(context) => {
             json! {
