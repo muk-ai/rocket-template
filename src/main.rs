@@ -35,6 +35,8 @@ use handlers::hello_world;
 use handlers::params;
 use handlers::tasks;
 
+use log::write_error;
+
 embed_migrations!();
 
 fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
@@ -45,14 +47,14 @@ fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
         Ok(conn) => match embedded_migrations::run(&*conn) {
             Ok(()) => Ok(rocket),
             Err(e) => {
-                eprintln!("migration failed");
-                eprintln!("Error: {}", e);
+                write_error("migration failed", None);
+                write_error(format!("Error: {}", e), None);
                 Err(rocket)
             }
         },
         Err(e) => {
-            eprintln!("couldn't get connection pool");
-            eprintln!("Error: {}", e);
+            write_error("couldn't get connection pool", None);
+            write_error(format!("Error: {}", e), None);
             Err(rocket)
         }
     }
@@ -64,7 +66,7 @@ fn main() {
         .attach(jwks::FetchJwksFairing)
         .attach(AdHoc::on_attach("Database Migrations", run_db_migrations))
         .attach(cors::CorsFairing)
-        .attach(log::AccessLogFairing)
+        .attach(log::LoggingUidFairing)
         .mount("/", routes![hello_world::index])
         .mount(
             "/",

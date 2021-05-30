@@ -5,12 +5,18 @@ use rocket_contrib::json::Json;
 use serde::Deserialize;
 
 use crate::connection::DbConn;
+use crate::log::{write_info, TraceContext};
 use crate::models::tasks::{InsertableTask, Task};
 use crate::models::users::User;
 use crate::schema::tasks;
 
 #[get("/tasks")]
-pub fn tasks_index(user: User, conn: DbConn) -> Result<Json<Vec<Task>>, Status> {
+pub fn tasks_index(
+    user: User,
+    conn: DbConn,
+    trace: Option<&TraceContext>,
+) -> Result<Json<Vec<Task>>, Status> {
+    write_info("/tasks called", trace);
     let query_result: QueryResult<Vec<Task>> = Task::belonging_to(&user).load::<Task>(&*conn);
     query_result
         .map(|task| Json(task))
