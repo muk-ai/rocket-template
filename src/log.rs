@@ -2,6 +2,7 @@ use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
 use rocket::Data;
+use serde::Serialize;
 use serde_json;
 use serde_json::json;
 
@@ -65,13 +66,19 @@ impl<'a, 'r> FromRequest<'a, 'r> for &'a TraceContext {
     }
 }
 
-pub fn write_info(message: impl Into<String>, context: Option<&TraceContext>) {
+#[derive(Serialize)]
+enum LogSeverity {
+    INFO,
+    ERROR,
+}
+
+fn write_log(severity: LogSeverity, message: impl Into<String>, context: Option<&TraceContext>) {
     let message: String = message.into();
     let log = match context {
         Some(context) => {
             json! {
                 {
-                    "severity": "INFO",
+                    "severity": severity,
                     "message": message,
                     "logging.googleapis.com/trace": context.trace,
                     "logging.googleapis.com/spanId": context.span_id
@@ -81,40 +88,24 @@ pub fn write_info(message: impl Into<String>, context: Option<&TraceContext>) {
         None => {
             json! {
                 {
-                    "severity": "INFO",
+                    "severity": severity,
                     "message": message,
                 }
             }
         }
     };
     if let Ok(log) = serde_json::to_string(&log) {
-        println!("{}", log);
+        match severity {
+            LogSeverity::INFO => println!("{}", log),
+            LogSeverity::ERROR => eprintln!("{}", log),
+        }
     }
 }
 
+pub fn write_info(message: impl Into<String>, context: Option<&TraceContext>) {
+    write_log(LogSeverity::INFO, message, context);
+}
+
 pub fn write_error(message: impl Into<String>, context: Option<&TraceContext>) {
-    let message: String = message.into();
-    let log = match context {
-        Some(context) => {
-            json! {
-                {
-                    "severity": "ERROR",
-                    "message": message,
-                    "logging.googleapis.com/trace": context.trace,
-                    "logging.googleapis.com/spanId": context.span_id
-                }
-            }
-        }
-        None => {
-            json! {
-                {
-                    "severity": "ERROR",
-                    "message": message,
-                }
-            }
-        }
-    };
-    if let Ok(log) = serde_json::to_string(&log) {
-        eprintln!("{}", log);
-    }
+    write_log(LogSeverity::ERROR, message, context);
 }
