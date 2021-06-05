@@ -9,18 +9,17 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
 
-use rocket::{fairing::AdHoc, Rocket};
 use rocket_contrib::serve::StaticFiles;
 
 mod config;
 use config::CONFIG;
 
 mod cors;
+mod db;
 mod jwks;
 mod log;
 
 mod connection;
-use connection::PgPool;
 
 mod models;
 mod schema;
@@ -35,38 +34,13 @@ use handlers::hello_world;
 use handlers::params;
 use handlers::tasks;
 
-use log::write_error;
-
-embed_migrations!();
-
-fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
-    let pool = rocket
-        .state::<PgPool>()
-        .expect("couldn't get connection pool from state");
-    match pool.get() {
-        Ok(conn) => match embedded_migrations::run(&*conn) {
-            Ok(()) => Ok(rocket),
-            Err(e) => {
-                write_error("migration failed", None);
-                write_error(format!("Error: {}", e), None);
-                Err(rocket)
-            }
-        },
-        Err(e) => {
-            write_error("couldn't get connection pool", None);
-            write_error(format!("Error: {}", e), None);
-            Err(rocket)
-        }
-    }
-}
-
 fn main() {
     rocket::ignite()
         .manage(connection::init_pool())
         .attach(jwks::FetchJwksFairing)
-        .attach(AdHoc::on_attach("Database Migrations", run_db_migrations))
         .attach(cors::CorsFairing)
         .attach(log::LoggingUidFairing)
+        .attach(db::MigrationFairing)
         .mount("/", routes![hello_world::index])
         .mount(
             "/",
