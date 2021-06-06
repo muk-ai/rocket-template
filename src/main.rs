@@ -14,18 +14,14 @@ use rocket_contrib::serve::StaticFiles;
 mod config;
 use config::CONFIG;
 
-mod cors;
-mod db;
-mod jwks;
-mod log;
+mod fairing;
 
 mod connection;
-
-mod models;
-mod schema;
-
 mod firebase;
 mod id_token;
+mod log;
+mod models;
+mod schema;
 
 mod handlers;
 use handlers::auth;
@@ -37,10 +33,10 @@ use handlers::tasks;
 fn main() {
     rocket::ignite()
         .manage(connection::init_pool())
-        .attach(jwks::FetchJwksFairing)
-        .attach(cors::CorsFairing)
-        .attach(log::LoggingUidFairing)
-        .attach(db::MigrationFairing)
+        .attach(fairing::jwks::FetchJwksFairing)
+        .attach(fairing::cors::CorsFairing)
+        .attach(fairing::log::LoggingUidFairing)
+        .attach(fairing::migration::MigrationFairing)
         .mount("/", routes![hello_world::index])
         .mount(
             "/",
