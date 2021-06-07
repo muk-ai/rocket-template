@@ -2,7 +2,7 @@ use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, TokenData, Val
 use serde::{Deserialize, Serialize};
 
 use crate::config::CONFIG;
-use crate::fairing::jwks::FIREBASE_JWKS;
+use crate::jwks::FIREBASE_JWKS;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {

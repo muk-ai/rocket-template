@@ -19,6 +19,7 @@ mod fairing;
 mod connection;
 mod firebase;
 mod id_token;
+mod jwks;
 mod log;
 mod models;
 mod schema;
