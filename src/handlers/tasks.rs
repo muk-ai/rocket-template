@@ -1,7 +1,7 @@
 use diesel::prelude::*;
 use diesel::result::Error;
 use rocket::http::Status;
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 use serde::Deserialize;
 
 use crate::connection::DbConn;
