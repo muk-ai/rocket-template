@@ -1,5 +1,5 @@
 use rocket::fairing::{Fairing, Info, Kind};
-use rocket::Rocket;
+use rocket::{Build, Rocket};
 
 use crate::jwks::{JwkSet, FIREBASE_JWKS, JWKS_URL};
 use crate::log::write_error;
@@ -10,11 +10,11 @@ impl Fairing for FetchJwksFairing {
     fn info(&self) -> Info {
         Info {
             name: "Fetch JWK Set",
-            kind: Kind::Attach,
+            kind: Kind::Ignite,
         }
     }
 
-    fn on_attach(&self, rocket: Rocket) -> Result<Rocket, Rocket> {
+    fn on_ignite(&self, rocket: Rocket<Build>) -> rocket::fairing::Result {
         let mut jwk_set: Option<JwkSet> = None;
         match reqwest::blocking::get(JWKS_URL) {
             Ok(response) => match response.json::<JwkSet>() {
