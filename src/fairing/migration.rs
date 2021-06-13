@@ -1,5 +1,5 @@
 use rocket::fairing::{Fairing, Info, Kind};
-use rocket::Rocket;
+use rocket::{Orbit, Rocket};
 
 use crate::connection::PgPool;
 use crate::log::write_error;
@@ -12,18 +12,18 @@ impl Fairing for MigrationFairing {
     fn info(&self) -> Info {
         Info {
             name: "Execute DB Migration",
-            kind: Kind::Launch,
+            kind: Kind::Liftoff,
         }
     }
 
-    fn on_launch(&self, rocket: &Rocket) {
+    fn on_liftoff(&self, rocket: &Rocket<Orbit>) {
         if run_db_migrations(rocket).is_err() {
             panic!("migration failed, panic!")
         }
     }
 }
 
-fn run_db_migrations(rocket: &Rocket) -> Result<(), ()> {
+fn run_db_migrations(rocket: &Rocket<Orbit>) -> Result<(), ()> {
     let pool = rocket
         .state::<PgPool>()
         .expect("couldn't get connection pool from state");
