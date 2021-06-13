@@ -7,7 +7,7 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
 
-use rocket_contrib::serve::StaticFiles;
+use rocket::fs::FileServer;
 
 mod config;
 use config::CONFIG;
@@ -51,7 +51,7 @@ async fn main() -> Result<(), rocket::Error> {
             ],
         )
         .mount("/", routes![auth::get_auth_me, auth::post_auth_me])
-        // .mount("/public", StaticFiles::from(&CONFIG.public_dir))
+        .mount("/public", FileServer::from(&CONFIG.public_dir))
         .ignite()
         .await?
         .launch()
