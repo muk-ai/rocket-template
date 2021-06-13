@@ -11,10 +11,10 @@ pub struct TraceContext {
     span_id: String,
 }
 
-impl<'a, 'r> FromRequest<'a, 'r> for &'a TraceContext {
+impl<'r> FromRequest<'r> for &TraceContext {
     type Error = ();
 
-    fn from_request(request: &'a Request<'r>) -> Outcome<Self, Self::Error> {
+    fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         let trace_context = request.local_cache(|| {
             if let Some(header) = request.headers().get_one("X-Cloud-Trace-Context") {
                 let chunks: Vec<&str> = header.split(&['/', ';'][..]).collect();

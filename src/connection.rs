@@ -19,10 +19,10 @@ pub fn init_pool() -> PgPool {
 
 pub struct DbConn(pub r2d2::PooledConnection<ConnectionManager<PgConnection>>);
 
-impl<'a, 'r> FromRequest<'a, 'r> for DbConn {
+impl<'r> FromRequest<'r> for DbConn {
     type Error = ();
 
-    fn from_request(request: &'a Request<'r>) -> Outcome<DbConn, Self::Error> {
+    fn from_request(request: &'r Request<'_>) -> Outcome<DbConn, Self::Error> {
         let pool = request.guard::<State<PgPool>>()?;
         match pool.get() {
             Ok(conn) => Outcome::Success(DbConn(conn)),

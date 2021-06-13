@@ -8,10 +8,10 @@ use crate::connection::DbConn;
 use crate::firebase;
 use crate::id_token::IdToken;
 
-impl<'a, 'r> FromRequest<'a, 'r> for User {
+impl<'r> FromRequest<'r> for User {
     type Error = ();
 
-    fn from_request(request: &'a Request<'r>) -> Outcome<Self, Self::Error> {
+    fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         let conn = request.guard::<DbConn>()?;
         let id_token = request.guard::<IdToken>()?;
 
