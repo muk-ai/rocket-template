@@ -11,10 +11,11 @@ pub struct TraceContext {
     span_id: String,
 }
 
+#[rocket::async_trait]
 impl<'r> FromRequest<'r> for &TraceContext {
     type Error = ();
 
-    fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
+    async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         let trace_context = request.local_cache(|| {
             if let Some(header) = request.headers().get_one("X-Cloud-Trace-Context") {
                 let chunks: Vec<&str> = header.split(&['/', ';'][..]).collect();

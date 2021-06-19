@@ -8,10 +8,11 @@ use crate::connection::DbConn;
 use crate::firebase;
 use crate::id_token::IdToken;
 
+#[rocket::async_trait]
 impl<'r> FromRequest<'r> for User {
     type Error = ();
 
-    fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
+    async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         let conn = request.guard::<DbConn>()?;
         let id_token = request.guard::<IdToken>()?;
 

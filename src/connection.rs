@@ -19,10 +19,11 @@ pub fn init_pool() -> PgPool {
 
 pub struct DbConn(pub r2d2::PooledConnection<ConnectionManager<PgConnection>>);
 
+#[rocket::async_trait]
 impl<'r> FromRequest<'r> for DbConn {
     type Error = ();
 
-    fn from_request(request: &'r Request<'_>) -> Outcome<DbConn, Self::Error> {
+    async fn from_request(request: &'r Request<'_>) -> Outcome<DbConn, Self::Error> {
         let pool = request.guard::<State<PgPool>>()?;
         match pool.get() {
             Ok(conn) => Outcome::Success(DbConn(conn)),
