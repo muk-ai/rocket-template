@@ -17,11 +17,11 @@ impl Fairing for LoggingUidFairing {
     }
 
     async fn on_request(&self, request: &mut Request<'_>, _: &mut Data<'_>) {
-        let trace_context = match request.guard::<&TraceContext>() {
+        let trace_context = match request.guard::<&TraceContext>().await {
             Outcome::Success(context) => Some(context),
             _ => None,
         };
-        let user = request.guard::<User>();
+        let user = request.guard::<User>().await;
         match user {
             Outcome::Success(user) => {
                 write_info(format!("firebase uid: {}", user.uid), trace_context);
