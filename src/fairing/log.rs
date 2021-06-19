@@ -7,6 +7,7 @@ use crate::models::users::User;
 
 pub struct LoggingUidFairing;
 
+#[rocket::async_trait]
 impl Fairing for LoggingUidFairing {
     fn info(&self) -> Info {
         Info {
@@ -15,7 +16,7 @@ impl Fairing for LoggingUidFairing {
         }
     }
 
-    fn on_request(&self, request: &mut Request, _: &Data) {
+    async fn on_request(&self, request: &mut Request<'_>, _: &mut Data<'_>) {
         let trace_context = match request.guard::<&TraceContext>() {
             Outcome::Success(context) => Some(context),
             _ => None,

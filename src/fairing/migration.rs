@@ -8,6 +8,7 @@ embed_migrations!();
 
 pub struct MigrationFairing;
 
+#[rocket::async_trait]
 impl Fairing for MigrationFairing {
     fn info(&self) -> Info {
         Info {
@@ -16,7 +17,7 @@ impl Fairing for MigrationFairing {
         }
     }
 
-    fn on_liftoff(&self, rocket: &Rocket<Orbit>) {
+    async fn on_liftoff(&self, rocket: &Rocket<Orbit>) {
         if run_db_migrations(rocket).is_err() {
             panic!("migration failed, panic!")
         }

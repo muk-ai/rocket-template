@@ -6,6 +6,7 @@ use crate::log::write_error;
 
 pub struct FetchJwksFairing;
 
+#[rocket::async_trait]
 impl Fairing for FetchJwksFairing {
     fn info(&self) -> Info {
         Info {
@@ -14,7 +15,7 @@ impl Fairing for FetchJwksFairing {
         }
     }
 
-    fn on_ignite(&self, rocket: Rocket<Build>) -> rocket::fairing::Result {
+    async fn on_ignite(&self, rocket: Rocket<Build>) -> rocket::fairing::Result {
         let mut jwk_set: Option<JwkSet> = None;
         match reqwest::blocking::get(JWKS_URL) {
             Ok(response) => match response.json::<JwkSet>() {
