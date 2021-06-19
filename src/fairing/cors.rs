@@ -32,7 +32,7 @@ impl Fairing for CorsFairing {
         if response.status() == Status::NotFound && request.method() == Method::Options {
             response.set_header(Header::new("Access-Control-Max-Age", "86400"));
             response.set_status(Status::NoContent);
-            response.set_sized_body(Cursor::new(""));
+            response.set_sized_body(0, Cursor::new(""));
         }
     }
 }
