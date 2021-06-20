@@ -23,6 +23,7 @@ mod schema;
 mod handlers;
 use handlers::auth;
 use handlers::count;
+use handlers::count::HitCount;
 use handlers::hello_world;
 use handlers::params;
 use handlers::tasks;
@@ -31,6 +32,7 @@ use handlers::tasks;
 async fn main() -> Result<(), rocket::Error> {
     rocket::build()
         .manage(connection::init_pool())
+        .manage(HitCount::new())
         .attach(fairing::jwks::FetchJwksFairing)
         .attach(fairing::cors::CorsFairing)
         .attach(fairing::log::LoggingUidFairing)
