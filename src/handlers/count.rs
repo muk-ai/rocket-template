@@ -5,7 +5,7 @@ static ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
 pub struct RequestId(pub usize);
 
 #[rocket::async_trait]
-impl<'r> FromRequest<'r> for &RequestId {
+impl<'r> FromRequest<'r> for &'r RequestId {
     type Error = ();
 
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
