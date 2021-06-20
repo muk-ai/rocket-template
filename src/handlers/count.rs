@@ -1,17 +1,24 @@
-use rocket::State;
+use rocket::request::{FromRequest, Outcome, Request};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-#[derive(Default)]
-pub struct HitCount(AtomicUsize);
+static ID_COUNTER: AtomicUsize = AtomicUsize::new(0);
+pub struct RequestId(pub usize);
 
-impl HitCount {
-    pub fn new() -> Self {
-        HitCount(AtomicUsize::new(0))
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for &RequestId {
+    type Error = ();
+
+    async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
+        // The closure passed to `local_cache` will be executed at most once per
+        // request: the first time the `RequestId` guard is used. If it is
+        // requested again, `local_cache` will return the same value.
+        Outcome::Success(
+            request.local_cache(|| RequestId(ID_COUNTER.fetch_add(1, Ordering::Relaxed))),
+        )
     }
 }
 
 #[get("/count")]
-pub fn count(hit_count: &State<HitCount>) -> String {
-    let count = hit_count.0.fetch_add(1, Ordering::Relaxed) + 1;
-    format!("This is request #{}.", count)
+pub fn count(id: &RequestId) -> String {
+    format!("This is request #{}.", id.0)
 }
