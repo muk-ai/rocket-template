@@ -17,8 +17,8 @@ impl Fairing for FetchJwksFairing {
 
     async fn on_ignite(&self, rocket: Rocket<Build>) -> rocket::fairing::Result {
         let mut jwk_set: Option<JwkSet> = None;
-        match reqwest::blocking::get(JWKS_URL) {
-            Ok(response) => match response.json::<JwkSet>() {
+        match reqwest::get(JWKS_URL).await {
+            Ok(response) => match response.json::<JwkSet>().await {
                 Ok(json) => jwk_set = Some(json),
                 Err(err) => {
                     write_error(format!("{:?}", err), None);
