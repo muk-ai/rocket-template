@@ -7,6 +7,7 @@ use crate::config::CONFIG;
 
 pub struct CorsFairing;
 
+#[rocket::async_trait]
 impl Fairing for CorsFairing {
     fn info(&self) -> Info {
         Info {
@@ -15,7 +16,7 @@ impl Fairing for CorsFairing {
         }
     }
 
-    fn on_response(&self, request: &Request, response: &mut Response) {
+    async fn on_response<'r>(&self, request: &'r Request<'_>, response: &mut Response<'r>) {
         response.set_header(Header::new(
             "Access-Control-Allow-Origin",
             &CONFIG.allowed_origin,
@@ -31,7 +32,7 @@ impl Fairing for CorsFairing {
         if response.status() == Status::NotFound && request.method() == Method::Options {
             response.set_header(Header::new("Access-Control-Max-Age", "86400"));
             response.set_status(Status::NoContent);
-            response.set_sized_body(Cursor::new(""));
+            response.set_sized_body(0, Cursor::new(""));
         }
     }
 }

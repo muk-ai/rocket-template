@@ -2,7 +2,6 @@ use diesel::{r2d2::ConnectionManager, PgConnection};
 use r2d2;
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
-use rocket::State;
 use std::ops::Deref;
 
 use crate::config::CONFIG;
@@ -19,14 +18,22 @@ pub fn init_pool() -> PgPool {
 
 pub struct DbConn(pub r2d2::PooledConnection<ConnectionManager<PgConnection>>);
 
-impl<'a, 'r> FromRequest<'a, 'r> for DbConn {
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for DbConn {
     type Error = ();
 
-    fn from_request(request: &'a Request<'r>) -> Outcome<DbConn, Self::Error> {
-        let pool = request.guard::<State<PgPool>>()?;
-        match pool.get() {
-            Ok(conn) => Outcome::Success(DbConn(conn)),
-            Err(_) => Outcome::Failure((Status::ServiceUnavailable, ())),
+    async fn from_request(request: &'r Request<'_>) -> Outcome<DbConn, Self::Error> {
+        if let Some(pool) = request.rocket().state::<PgPool>() {
+            match pool.get() {
+                Ok(conn) => Outcome::Success(DbConn(conn)),
+                Err(_) => {
+                    eprintln!("couldn't get connection from ConnectionManager");
+                    Outcome::Failure((Status::ServiceUnavailable, ()))
+                }
+            }
+        } else {
+            eprintln!("couldn't get PgPool");
+            Outcome::Failure((Status::ServiceUnavailable, ()))
         }
     }
 }

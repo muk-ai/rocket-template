@@ -1,7 +1,8 @@
 use diesel::result::OptionalExtension;
 use rocket::http::Status;
 use rocket::response::status;
-use rocket_contrib::json::{Json, JsonValue};
+use rocket::serde::json::Json;
+use serde_json::{json, Value};
 
 use crate::connection::DbConn;
 use crate::firebase;
@@ -15,7 +16,7 @@ pub fn get_auth_me(user: User) -> Json<User> {
 }
 
 #[post("/auth/me")]
-pub fn post_auth_me(id_token: IdToken, conn: DbConn) -> Result<Status, status::Custom<JsonValue>> {
+pub fn post_auth_me(id_token: IdToken, conn: DbConn) -> Result<Status, status::Custom<Value>> {
     let token_result = firebase::auth::verify_id_token(id_token.0);
     if let Err(message) = token_result {
         return Err(json_error(Status::Unauthorized, message));
@@ -39,7 +40,7 @@ pub fn post_auth_me(id_token: IdToken, conn: DbConn) -> Result<Status, status::C
     }
 }
 
-fn json_error(status: Status, message: String) -> status::Custom<JsonValue> {
+fn json_error(status: Status, message: String) -> status::Custom<Value> {
     let json_value = json!({
           "errors": [
               {

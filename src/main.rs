@@ -1,15 +1,11 @@
-#![feature(proc_macro_hygiene, decl_macro)]
-
 #[macro_use]
 extern crate rocket;
-#[macro_use]
-extern crate rocket_contrib;
 #[macro_use]
 extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
 
-use rocket_contrib::serve::StaticFiles;
+use rocket::fs::FileServer;
 
 mod config;
 use config::CONFIG;
@@ -31,8 +27,9 @@ use handlers::hello_world;
 use handlers::params;
 use handlers::tasks;
 
-fn main() {
-    rocket::ignite()
+#[rocket::main]
+async fn main() -> Result<(), rocket::Error> {
+    rocket::build()
         .manage(connection::init_pool())
         .attach(fairing::jwks::FetchJwksFairing)
         .attach(fairing::cors::CorsFairing)
@@ -52,6 +49,9 @@ fn main() {
             ],
         )
         .mount("/", routes![auth::get_auth_me, auth::post_auth_me])
-        .mount("/public", StaticFiles::from(&CONFIG.public_dir))
-        .launch();
+        .mount("/public", FileServer::from(&CONFIG.public_dir))
+        .ignite()
+        .await?
+        .launch()
+        .await
 }

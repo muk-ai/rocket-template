@@ -1,5 +1,4 @@
-FROM rustlang/rust:nightly-buster AS builder
-# ref. https://github.com/rust-lang/docker-rust-nightly
+FROM rust:1.53-buster AS builder
 
 WORKDIR /app
 
