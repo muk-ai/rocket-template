@@ -26,7 +26,7 @@ impl<'r> FromRequest<'r> for &'r TraceContext {
                     });
                 }
             }
-            return None;
+            None
         });
         match trace_context {
             Some(trace) => Outcome::Success(trace),
