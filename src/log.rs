@@ -21,7 +21,7 @@ impl<'r> FromRequest<'r> for &'r TraceContext {
                 if let (Some(trace), Some(span)) = (chunks.get(0), chunks.get(1)) {
                     let trace = format!("projects/{}/traces/{}", &CONFIG.gcp_project_id, trace);
                     return Some(TraceContext {
-                        trace: trace,
+                        trace,
                         span_id: span.to_string(),
                     });
                 }
