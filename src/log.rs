@@ -37,8 +37,8 @@ impl<'r> FromRequest<'r> for &'r TraceContext {
 
 #[derive(Serialize)]
 enum LogSeverity {
-    INFO,
-    ERROR,
+    Info,
+    Error,
 }
 
 fn write_log(severity: LogSeverity, message: impl Into<String>, context: Option<&TraceContext>) {
@@ -65,16 +65,16 @@ fn write_log(severity: LogSeverity, message: impl Into<String>, context: Option<
     };
     if let Ok(log) = serde_json::to_string(&log) {
         match severity {
-            LogSeverity::INFO => println!("{}", log),
-            LogSeverity::ERROR => eprintln!("{}", log),
+            LogSeverity::Info => println!("{}", log),
+            LogSeverity::Error => eprintln!("{}", log),
         }
     }
 }
 
 pub fn write_info(message: impl Into<String>, context: Option<&TraceContext>) {
-    write_log(LogSeverity::INFO, message, context);
+    write_log(LogSeverity::Info, message, context);
 }
 
 pub fn write_error(message: impl Into<String>, context: Option<&TraceContext>) {
-    write_log(LogSeverity::ERROR, message, context);
+    write_log(LogSeverity::Error, message, context);
 }
