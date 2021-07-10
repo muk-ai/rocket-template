@@ -1,7 +1,6 @@
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
 use serde::Serialize;
-use serde_json;
 use serde_json::json;
 
 use crate::config::CONFIG;
