@@ -42,4 +42,4 @@ fn public_dir() -> String {
         .expect("coudn't covert public directory to String.")
 }
 
-pub static CONFIG: Lazy<Config> = Lazy::new(|| Config::from_env());
+pub static CONFIG: Lazy<Config> = Lazy::new(Config::from_env);
