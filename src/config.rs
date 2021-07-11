@@ -21,7 +21,7 @@ impl Config {
         let public_dir = public_dir();
         let firebase_project_id = env::var("FIREBASE_PROJECT_ID")
             .expect("environment variable FIREBASE_PROJECT_ID is not defined");
-        let gcp_project_id = env::var("GCP_PROJECT").unwrap_or("development".to_owned());
+        let gcp_project_id = env::var("GCP_PROJECT").unwrap_or_else(|_| "development".to_owned());
 
         Config {
             database_url,
@@ -42,4 +42,4 @@ fn public_dir() -> String {
         .expect("coudn't covert public directory to String.")
 }
 
-pub static CONFIG: Lazy<Config> = Lazy::new(|| Config::from_env());
+pub static CONFIG: Lazy<Config> = Lazy::new(Config::from_env);

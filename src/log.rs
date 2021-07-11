@@ -1,7 +1,6 @@
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
 use serde::Serialize;
-use serde_json;
 use serde_json::json;
 
 use crate::config::CONFIG;
@@ -22,12 +21,12 @@ impl<'r> FromRequest<'r> for &'r TraceContext {
                 if let (Some(trace), Some(span)) = (chunks.get(0), chunks.get(1)) {
                     let trace = format!("projects/{}/traces/{}", &CONFIG.gcp_project_id, trace);
                     return Some(TraceContext {
-                        trace: trace,
+                        trace,
                         span_id: span.to_string(),
                     });
                 }
             }
-            return None;
+            None
         });
         match trace_context {
             Some(trace) => Outcome::Success(trace),
@@ -38,8 +37,8 @@ impl<'r> FromRequest<'r> for &'r TraceContext {
 
 #[derive(Serialize)]
 enum LogSeverity {
-    INFO,
-    ERROR,
+    Info,
+    Error,
 }
 
 fn write_log(severity: LogSeverity, message: impl Into<String>, context: Option<&TraceContext>) {
@@ -66,16 +65,16 @@ fn write_log(severity: LogSeverity, message: impl Into<String>, context: Option<
     };
     if let Ok(log) = serde_json::to_string(&log) {
         match severity {
-            LogSeverity::INFO => println!("{}", log),
-            LogSeverity::ERROR => eprintln!("{}", log),
+            LogSeverity::Info => println!("{}", log),
+            LogSeverity::Error => eprintln!("{}", log),
         }
     }
 }
 
 pub fn write_info(message: impl Into<String>, context: Option<&TraceContext>) {
-    write_log(LogSeverity::INFO, message, context);
+    write_log(LogSeverity::Info, message, context);
 }
 
 pub fn write_error(message: impl Into<String>, context: Option<&TraceContext>) {
-    write_log(LogSeverity::ERROR, message, context);
+    write_log(LogSeverity::Error, message, context);
 }

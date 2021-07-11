@@ -19,7 +19,7 @@ pub fn tasks_index(
     write_info("/tasks called", trace);
     let query_result: QueryResult<Vec<Task>> = Task::belonging_to(&user).load::<Task>(&*conn);
     query_result
-        .map(|task| Json(task))
+        .map(Json)
         .map_err(|_error| Status::InternalServerError)
 }
 
@@ -91,12 +91,10 @@ pub fn tasks_update(
     let query_result = diesel::update(tasks::table.find(id))
         .set(task.into_inner())
         .get_result(&*conn);
-    query_result
-        .map(|task| Json(task))
-        .map_err(|error| match error {
-            Error::NotFound => Status::NotFound,
-            _ => Status::InternalServerError,
-        })
+    query_result.map(Json).map_err(|error| match error {
+        Error::NotFound => Status::NotFound,
+        _ => Status::InternalServerError,
+    })
 }
 
 #[delete("/tasks/<id>")]
