@@ -22,6 +22,7 @@ mod schema;
 
 mod handlers;
 use handlers::auth;
+use handlers::cookies;
 use handlers::count;
 use handlers::hello_world;
 use handlers::params;
@@ -41,6 +42,7 @@ async fn main() -> Result<(), rocket::Error> {
             routes![
                 count::count,
                 params::params,
+                cookies::cookies,
                 tasks::tasks_index,
                 tasks::tasks_get,
                 tasks::tasks_post,
