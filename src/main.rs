@@ -22,6 +22,7 @@ mod schema;
 
 mod handlers;
 use handlers::auth;
+use handlers::cookies;
 use handlers::count;
 use handlers::hello_world;
 use handlers::params;
@@ -29,6 +30,8 @@ use handlers::tasks;
 
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error> {
+    dotenv::dotenv().ok();
+
     rocket::build()
         .manage(connection::init_pool())
         .attach(fairing::jwks::FetchJwksFairing)
@@ -41,6 +44,8 @@ async fn main() -> Result<(), rocket::Error> {
             routes![
                 count::count,
                 params::params,
+                cookies::cookies,
+                cookies::set_cookies,
                 tasks::tasks_index,
                 tasks::tasks_get,
                 tasks::tasks_post,

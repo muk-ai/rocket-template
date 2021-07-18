@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies.rocket]
 version = "0.5.0-rc.1"
-features = ["json"]
+features = ["json", "secrets"]
 
 [dependencies]
 diesel = { version = "1.4.5", features = ["postgres", "r2d2", "chrono", "uuidv07"] }
@@ -19,6 +19,7 @@ chrono = { version = "0.4", features = ["serde"] }
 jsonwebtoken = "7"
 reqwest = { version = "0.11", features = ["json"] }
 uuid = { version = "0.8", features = ["serde"] }
+time = "0.2"
 
 # connection pool
 r2d2 = "0.8"
