@@ -30,6 +30,8 @@ use handlers::tasks;
 
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error> {
+    dotenv::dotenv().ok();
+
     rocket::build()
         .manage(connection::init_pool())
         .attach(fairing::jwks::FetchJwksFairing)
