@@ -43,6 +43,7 @@ async fn main() -> Result<(), rocket::Error> {
                 count::count,
                 params::params,
                 cookies::cookies,
+                cookies::set_cookies,
                 tasks::tasks_index,
                 tasks::tasks_get,
                 tasks::tasks_post,
