@@ -18,7 +18,10 @@ impl Fairing for MigrationFairing {
     }
 
     async fn on_ignite(&self, rocket: Rocket<Build>) -> rocket::fairing::Result {
-        if run_db_migrations(&rocket).is_ok() {
+        let pool = rocket
+            .state::<PgPool>()
+            .expect("couldn't get connection pool from state");
+        if run_db_migrations(pool).is_ok() {
             Ok(rocket)
         } else {
             Err(rocket)
@@ -26,10 +29,7 @@ impl Fairing for MigrationFairing {
     }
 }
 
-fn run_db_migrations(rocket: &Rocket<Build>) -> Result<(), ()> {
-    let pool = rocket
-        .state::<PgPool>()
-        .expect("couldn't get connection pool from state");
+fn run_db_migrations(pool: &PgPool) -> Result<(), ()> {
     match pool.get() {
         Ok(conn) => match embedded_migrations::run(&*conn) {
             Ok(()) => Ok(()),
