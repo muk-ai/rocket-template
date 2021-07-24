@@ -1,5 +1,6 @@
 use diesel::prelude::*;
 use diesel::result::Error;
+use rocket::fairing::AdHoc;
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use serde::Deserialize;
@@ -10,7 +11,22 @@ use crate::models::tasks::{InsertableTask, Task};
 use crate::models::users::User;
 use crate::schema::tasks;
 
-#[get("/tasks")]
+pub fn stage() -> AdHoc {
+    AdHoc::on_ignite("Mount /tasks", |rocket| async {
+        rocket.mount(
+            "/tasks",
+            routes![
+                tasks_index,
+                tasks_get,
+                tasks_post,
+                tasks_update,
+                tasks_delete
+            ],
+        )
+    })
+}
+
+#[get("/")]
 pub fn tasks_index(
     user: User,
     conn: DbConn,
@@ -23,7 +39,7 @@ pub fn tasks_index(
         .map_err(|_error| Status::InternalServerError)
 }
 
-#[get("/tasks/<id>")]
+#[get("/<id>")]
 pub fn tasks_get(user: User, id: i32, conn: DbConn) -> Result<Json<Task>, Status> {
     let query_result: QueryResult<Task> = tasks::table.find(id).get_result::<Task>(&*conn);
     if let Err(error) = query_result {
@@ -45,7 +61,7 @@ pub struct TaskDescriptionData {
     description: String,
 }
 
-#[post("/tasks", format = "application/json", data = "<task>")]
+#[post("/", format = "application/json", data = "<task>")]
 pub fn tasks_post(
     user: User,
     task: Json<TaskDescriptionData>,
@@ -69,7 +85,7 @@ pub struct TaskChangeset {
     description: Option<String>,
 }
 
-#[patch("/tasks/<id>", format = "application/json", data = "<task>")]
+#[patch("/<id>", format = "application/json", data = "<task>")]
 pub fn tasks_update(
     user: User,
     id: i32,
@@ -97,7 +113,7 @@ pub fn tasks_update(
     })
 }
 
-#[delete("/tasks/<id>")]
+#[delete("/<id>")]
 pub fn tasks_delete(user: User, id: i32, conn: DbConn) -> Result<Status, Status> {
     let query_result: QueryResult<Task> = tasks::table.find(id).get_result::<Task>(&*conn);
     if let Err(error) = query_result {

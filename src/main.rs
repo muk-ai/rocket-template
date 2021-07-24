@@ -26,7 +26,6 @@ use handlers::cookies;
 use handlers::count;
 use handlers::hello_world;
 use handlers::params;
-use handlers::tasks;
 
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error> {
@@ -46,13 +45,9 @@ async fn main() -> Result<(), rocket::Error> {
                 params::params,
                 cookies::cookies,
                 cookies::set_cookies,
-                tasks::tasks_index,
-                tasks::tasks_get,
-                tasks::tasks_post,
-                tasks::tasks_update,
-                tasks::tasks_delete
             ],
         )
+        .attach(handlers::tasks::stage())
         .mount("/", routes![auth::get_auth_me, auth::post_auth_me])
         .mount("/public", FileServer::from(&CONFIG.public_dir))
         .ignite()
