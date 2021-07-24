@@ -21,7 +21,6 @@ mod models;
 mod schema;
 
 mod handlers;
-use handlers::auth;
 use handlers::cookies;
 use handlers::count;
 use handlers::hello_world;
@@ -47,8 +46,8 @@ async fn main() -> Result<(), rocket::Error> {
                 cookies::set_cookies,
             ],
         )
+        .attach(handlers::auth::stage())
         .attach(handlers::tasks::stage())
-        .mount("/", routes![auth::get_auth_me, auth::post_auth_me])
         .mount("/public", FileServer::from(&CONFIG.public_dir))
         .ignite()
         .await?
