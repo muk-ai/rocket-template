@@ -27,7 +27,7 @@ pub fn stage() -> AdHoc {
 }
 
 #[get("/")]
-pub fn tasks_index(
+fn tasks_index(
     user: User,
     conn: DbConn,
     trace: Option<&TraceContext>,
@@ -40,7 +40,7 @@ pub fn tasks_index(
 }
 
 #[get("/<id>")]
-pub fn tasks_get(user: User, id: i32, conn: DbConn) -> Result<Json<Task>, Status> {
+fn tasks_get(user: User, id: i32, conn: DbConn) -> Result<Json<Task>, Status> {
     let query_result: QueryResult<Task> = tasks::table.find(id).get_result::<Task>(&*conn);
     if let Err(error) = query_result {
         return match error {
@@ -57,16 +57,12 @@ pub fn tasks_get(user: User, id: i32, conn: DbConn) -> Result<Json<Task>, Status
 }
 
 #[derive(Deserialize)]
-pub struct TaskDescriptionData {
+struct TaskDescriptionData {
     description: String,
 }
 
 #[post("/", format = "application/json", data = "<task>")]
-pub fn tasks_post(
-    user: User,
-    task: Json<TaskDescriptionData>,
-    conn: DbConn,
-) -> Result<Status, Status> {
+fn tasks_post(user: User, task: Json<TaskDescriptionData>, conn: DbConn) -> Result<Status, Status> {
     let query_result = diesel::insert_into(tasks::table)
         .values(&InsertableTask::build(
             task.into_inner().description,
@@ -80,13 +76,13 @@ pub fn tasks_post(
 
 #[derive(Deserialize, AsChangeset)]
 #[table_name = "tasks"]
-pub struct TaskChangeset {
+struct TaskChangeset {
     completed: Option<bool>,
     description: Option<String>,
 }
 
 #[patch("/<id>", format = "application/json", data = "<task>")]
-pub fn tasks_update(
+fn tasks_update(
     user: User,
     id: i32,
     task: Json<TaskChangeset>,
@@ -114,7 +110,7 @@ pub fn tasks_update(
 }
 
 #[delete("/<id>")]
-pub fn tasks_delete(user: User, id: i32, conn: DbConn) -> Result<Status, Status> {
+fn tasks_delete(user: User, id: i32, conn: DbConn) -> Result<Status, Status> {
     let query_result: QueryResult<Task> = tasks::table.find(id).get_result::<Task>(&*conn);
     if let Err(error) = query_result {
         return match error {
