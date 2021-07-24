@@ -36,19 +36,19 @@ async fn main() -> Result<(), rocket::Error> {
         .attach(fairing::cors::CorsFairing)
         .attach(fairing::log::LoggingUidFairing)
         .attach(fairing::migration::MigrationFairing)
-        .mount("/", routes![hello_world::index])
         .mount(
             "/",
             routes![
+                hello_world::index,
                 count::count,
                 params::params,
                 cookies::cookies,
                 cookies::set_cookies,
             ],
         )
+        .mount("/public", FileServer::from(&CONFIG.public_dir))
         .attach(handlers::auth::stage())
         .attach(handlers::tasks::stage())
-        .mount("/public", FileServer::from(&CONFIG.public_dir))
         .ignite()
         .await?
         .launch()
