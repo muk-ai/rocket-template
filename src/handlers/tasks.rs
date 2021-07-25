@@ -1,5 +1,6 @@
 use diesel::prelude::*;
 use diesel::result::Error;
+use rocket::fairing::AdHoc;
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use serde::Deserialize;
@@ -10,8 +11,23 @@ use crate::models::tasks::{InsertableTask, Task};
 use crate::models::users::User;
 use crate::schema::tasks;
 
-#[get("/tasks")]
-pub fn tasks_index(
+pub fn stage() -> AdHoc {
+    AdHoc::on_ignite("Mount /tasks", |rocket| async {
+        rocket.mount(
+            "/tasks",
+            routes![
+                tasks_index,
+                tasks_get,
+                tasks_post,
+                tasks_update,
+                tasks_delete
+            ],
+        )
+    })
+}
+
+#[get("/")]
+fn tasks_index(
     user: User,
     conn: DbConn,
     trace: Option<&TraceContext>,
@@ -23,8 +39,8 @@ pub fn tasks_index(
         .map_err(|_error| Status::InternalServerError)
 }
 
-#[get("/tasks/<id>")]
-pub fn tasks_get(user: User, id: i32, conn: DbConn) -> Result<Json<Task>, Status> {
+#[get("/<id>")]
+fn tasks_get(user: User, id: i32, conn: DbConn) -> Result<Json<Task>, Status> {
     let query_result: QueryResult<Task> = tasks::table.find(id).get_result::<Task>(&*conn);
     if let Err(error) = query_result {
         return match error {
@@ -41,16 +57,12 @@ pub fn tasks_get(user: User, id: i32, conn: DbConn) -> Result<Json<Task>, Status
 }
 
 #[derive(Deserialize)]
-pub struct TaskDescriptionData {
+struct TaskDescriptionData {
     description: String,
 }
 
-#[post("/tasks", format = "application/json", data = "<task>")]
-pub fn tasks_post(
-    user: User,
-    task: Json<TaskDescriptionData>,
-    conn: DbConn,
-) -> Result<Status, Status> {
+#[post("/", format = "application/json", data = "<task>")]
+fn tasks_post(user: User, task: Json<TaskDescriptionData>, conn: DbConn) -> Result<Status, Status> {
     let query_result = diesel::insert_into(tasks::table)
         .values(&InsertableTask::build(
             task.into_inner().description,
@@ -64,13 +76,13 @@ pub fn tasks_post(
 
 #[derive(Deserialize, AsChangeset)]
 #[table_name = "tasks"]
-pub struct TaskChangeset {
+struct TaskChangeset {
     completed: Option<bool>,
     description: Option<String>,
 }
 
-#[patch("/tasks/<id>", format = "application/json", data = "<task>")]
-pub fn tasks_update(
+#[patch("/<id>", format = "application/json", data = "<task>")]
+fn tasks_update(
     user: User,
     id: i32,
     task: Json<TaskChangeset>,
@@ -97,8 +109,8 @@ pub fn tasks_update(
     })
 }
 
-#[delete("/tasks/<id>")]
-pub fn tasks_delete(user: User, id: i32, conn: DbConn) -> Result<Status, Status> {
+#[delete("/<id>")]
+fn tasks_delete(user: User, id: i32, conn: DbConn) -> Result<Status, Status> {
     let query_result: QueryResult<Task> = tasks::table.find(id).get_result::<Task>(&*conn);
     if let Err(error) = query_result {
         return match error {

@@ -1,4 +1,5 @@
 use diesel::result::OptionalExtension;
+use rocket::fairing::AdHoc;
 use rocket::http::Status;
 use rocket::response::status;
 use rocket::serde::json::Json;
@@ -10,13 +11,19 @@ use crate::id_token::IdToken;
 use crate::models::users;
 use crate::models::users::User;
 
-#[get("/auth/me")]
-pub fn get_auth_me(user: User) -> Json<User> {
+pub fn stage() -> AdHoc {
+    AdHoc::on_ignite("Mount /auth", |rocket| async {
+        rocket.mount("/auth", routes![get_auth_me, post_auth_me])
+    })
+}
+
+#[get("/me")]
+fn get_auth_me(user: User) -> Json<User> {
     Json(user)
 }
 
-#[post("/auth/me")]
-pub fn post_auth_me(id_token: IdToken, conn: DbConn) -> Result<Status, status::Custom<Value>> {
+#[post("/me")]
+fn post_auth_me(id_token: IdToken, conn: DbConn) -> Result<Status, status::Custom<Value>> {
     let token_result = firebase::auth::verify_id_token(id_token.0);
     if let Err(message) = token_result {
         return Err(json_error(Status::Unauthorized, message));
