@@ -19,3 +19,7 @@ pub fn insert(uid: String, conn: &DbConn) -> QueryResult<User> {
         .values(new_user)
         .get_result(&**conn)
 }
+
+pub fn delete(uid: String, conn: &DbConn) -> QueryResult<usize> {
+    diesel::delete(users::table.find(uid)).execute(&**conn)
+}

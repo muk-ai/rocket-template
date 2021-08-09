@@ -13,7 +13,7 @@ use crate::models::users::User;
 
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("Mount /auth", |rocket| async {
-        rocket.mount("/auth", routes![get_auth_me, post_auth_me])
+        rocket.mount("/auth", routes![get_auth_me, post_auth_me, delete_auth_me])
     })
 }
 
@@ -40,6 +40,17 @@ fn post_auth_me(id_token: IdToken, conn: DbConn) -> Result<Status, status::Custo
                 "internal server error".to_string(),
             )),
         },
+        Err(_) => Err(json_error(
+            Status::InternalServerError,
+            "internal server error".to_string(),
+        )),
+    }
+}
+
+#[delete("/me")]
+fn delete_auth_me(user: User, conn: DbConn) -> Result<Status, status::Custom<Value>> {
+    match users::repository::delete(user.uid, &conn) {
+        Ok(_) => Ok(Status::NoContent),
         Err(_) => Err(json_error(
             Status::InternalServerError,
             "internal server error".to_string(),
