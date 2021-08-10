@@ -29,7 +29,7 @@ use handlers::hello_world;
 use handlers::params;
 
 #[launch]
-async fn rocket() -> Rocket<Build> {
+fn rocket() -> Rocket<Build> {
     dotenv::dotenv().ok();
 
     rocket::build()
