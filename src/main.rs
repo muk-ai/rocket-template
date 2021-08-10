@@ -6,6 +6,8 @@ extern crate diesel;
 extern crate diesel_migrations;
 
 use rocket::fs::FileServer;
+use rocket::Build;
+use rocket::Rocket;
 
 mod config;
 use config::CONFIG;
@@ -26,8 +28,8 @@ use handlers::count;
 use handlers::hello_world;
 use handlers::params;
 
-#[rocket::main]
-async fn main() -> Result<(), rocket::Error> {
+#[launch]
+async fn rocket() -> Rocket<Build> {
     dotenv::dotenv().ok();
 
     rocket::build()
@@ -49,8 +51,4 @@ async fn main() -> Result<(), rocket::Error> {
         .mount("/public", FileServer::from(&CONFIG.public_dir))
         .attach(handlers::auth::stage())
         .attach(handlers::tasks::stage())
-        .ignite()
-        .await?
-        .launch()
-        .await
 }
