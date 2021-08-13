@@ -1,11 +1,15 @@
+use crate::config::CONFIG;
 use rocket::fairing::AdHoc;
+use rocket::fs::FileServer;
 
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("Mount /features-i-tried", |rocket| async {
-        rocket.mount(
-            "/features-i-tried",
-            routes![hello_world, params, count, set_cookies, cookies],
-        )
+        rocket
+            .mount(
+                "/features-i-tried",
+                routes![hello_world, params, count, set_cookies, cookies],
+            )
+            .mount("/public", FileServer::from(&CONFIG.public_dir))
     })
 }
 
