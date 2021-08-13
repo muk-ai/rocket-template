@@ -25,7 +25,6 @@ mod schema;
 mod handlers;
 use handlers::cookies;
 use handlers::count;
-use handlers::hello_world;
 use handlers::params;
 
 #[launch]
@@ -38,10 +37,10 @@ fn rocket() -> Rocket<Build> {
         .attach(fairing::cors::CorsFairing)
         .attach(fairing::log::LoggingUidFairing)
         .attach(fairing::migration::MigrationFairing)
+        .attach(handlers::features_i_tried::stage())
         .mount(
             "/",
             routes![
-                hello_world::index,
                 count::count,
                 params::params,
                 cookies::cookies,
@@ -62,7 +61,7 @@ mod test {
     #[test]
     fn hello_world() {
         let client = Client::tracked(rocket()).expect("valid rocket instance");
-        let response = client.get("/").dispatch();
+        let response = client.get("/features-i-tried/hello-world").dispatch();
         assert_eq!(response.status(), Status::Ok);
         assert_eq!(response.into_string().unwrap(), "Hello, world!");
     }
