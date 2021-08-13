@@ -25,7 +25,6 @@ mod schema;
 mod handlers;
 use handlers::cookies;
 use handlers::count;
-use handlers::params;
 
 #[launch]
 fn rocket() -> Rocket<Build> {
@@ -40,12 +39,7 @@ fn rocket() -> Rocket<Build> {
         .attach(handlers::features_i_tried::stage())
         .mount(
             "/",
-            routes![
-                count::count,
-                params::params,
-                cookies::cookies,
-                cookies::set_cookies,
-            ],
+            routes![count::count, cookies::cookies, cookies::set_cookies,],
         )
         .mount("/public", FileServer::from(&CONFIG.public_dir))
         .attach(handlers::auth::stage())
