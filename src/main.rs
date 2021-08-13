@@ -24,7 +24,6 @@ mod schema;
 
 mod handlers;
 use handlers::cookies;
-use handlers::count;
 
 #[launch]
 fn rocket() -> Rocket<Build> {
@@ -37,10 +36,7 @@ fn rocket() -> Rocket<Build> {
         .attach(fairing::log::LoggingUidFairing)
         .attach(fairing::migration::MigrationFairing)
         .attach(handlers::features_i_tried::stage())
-        .mount(
-            "/",
-            routes![count::count, cookies::cookies, cookies::set_cookies,],
-        )
+        .mount("/", routes![cookies::cookies, cookies::set_cookies,])
         .mount("/public", FileServer::from(&CONFIG.public_dir))
         .attach(handlers::auth::stage())
         .attach(handlers::tasks::stage())
