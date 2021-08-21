@@ -4,6 +4,7 @@ use rocket::request::{FromRequest, Outcome, Request};
 use std::ops::Deref;
 
 use crate::config::CONFIG;
+use crate::log::{write_error, TraceContext};
 
 pub type PgPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
@@ -22,16 +23,18 @@ impl<'r> FromRequest<'r> for DbConn {
     type Error = ();
 
     async fn from_request(request: &'r Request<'_>) -> Outcome<DbConn, Self::Error> {
+        let trace = request.guard::<&TraceContext>().await.succeeded();
+
         if let Some(pool) = request.rocket().state::<PgPool>() {
             match pool.get() {
                 Ok(conn) => Outcome::Success(DbConn(conn)),
                 Err(_) => {
-                    eprintln!("couldn't get connection from ConnectionManager");
+                    write_error("couldn't get connection from ConnectionManager", trace);
                     Outcome::Failure((Status::ServiceUnavailable, ()))
                 }
             }
         } else {
-            eprintln!("couldn't get PgPool");
+            write_error("couldn't get PgPool", trace);
             Outcome::Failure((Status::ServiceUnavailable, ()))
         }
     }
