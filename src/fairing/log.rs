@@ -24,8 +24,11 @@ impl Fairing for LoggingUidFairing {
         let user = request.guard::<User>().await;
         match user {
             Outcome::Success(user) => {
-                write_info(format!("firebase uid: {}", user.uid), trace_context);
-                write_info(format!("users id: {}", user.id), trace_context);
+                write_info(
+                    format!("users.uid (the same as Firebase uid) is {}", user.uid),
+                    trace_context,
+                );
+                write_info(format!("users.id is {}", user.id), trace_context);
             }
             _ => {
                 write_info("user is anonymous", trace_context);
