@@ -11,21 +11,3 @@ pub struct Task {
     pub created_at: chrono::NaiveDateTime,
     pub user_id: uuid::Uuid,
 }
-
-#[derive(Insertable)]
-#[table_name = "tasks"]
-pub struct InsertableTask {
-    description: String,
-    completed: bool,
-    user_id: uuid::Uuid,
-}
-
-impl InsertableTask {
-    pub fn build(description: String, user_id: uuid::Uuid) -> InsertableTask {
-        InsertableTask {
-            description,
-            user_id,
-            completed: false,
-        }
-    }
-}
