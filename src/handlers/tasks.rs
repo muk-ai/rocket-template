@@ -7,7 +7,7 @@ use serde::Deserialize;
 
 use crate::connection::DbConn;
 use crate::log::{write_info, TraceContext};
-use crate::models::tasks::{InsertableTask, Task};
+use crate::models::tasks::Task;
 use crate::models::users::User;
 use crate::schema::tasks;
 
@@ -61,13 +61,22 @@ struct TaskDescriptionData {
     description: String,
 }
 
+#[derive(Insertable)]
+#[table_name = "tasks"]
+struct InsertableTask {
+    description: String,
+    completed: bool,
+    user_id: uuid::Uuid,
+}
+
 #[post("/", format = "application/json", data = "<task>")]
 fn tasks_post(user: User, task: Json<TaskDescriptionData>, conn: DbConn) -> Result<Status, Status> {
     let query_result = diesel::insert_into(tasks::table)
-        .values(&InsertableTask::build(
-            task.into_inner().description,
-            user.id,
-        ))
+        .values(&InsertableTask {
+            description: task.into_inner().description,
+            user_id: user.id,
+            completed: false,
+        })
         .get_result::<Task>(&*conn);
     query_result
         .map(|_task| Status::Created)
