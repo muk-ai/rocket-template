@@ -8,6 +8,7 @@ use super::User;
 use crate::connection::DbConn;
 use crate::firebase;
 use crate::id_token::IdToken;
+use crate::log::{write_error, TraceContext};
 
 #[rocket::async_trait]
 impl<'r> FromRequest<'r> for User {
@@ -16,6 +17,7 @@ impl<'r> FromRequest<'r> for User {
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         let conn = try_outcome!(request.guard::<DbConn>().await);
         let id_token = try_outcome!(request.guard::<IdToken>().await);
+        let trace = request.guard::<&TraceContext>().await.succeeded();
 
         match firebase::auth::verify_id_token(id_token.0) {
             Ok(token_data) => {
@@ -26,7 +28,10 @@ impl<'r> FromRequest<'r> for User {
                     Err(_) => Outcome::Failure((Status::Unauthorized, ())),
                 }
             }
-            Err(_) => Outcome::Failure((Status::Unauthorized, ())),
+            Err(message) => {
+                write_error(format!("verify_id_token failed. Error: {}", message), trace);
+                Outcome::Failure((Status::Unauthorized, ()))
+            }
         }
     }
 }
