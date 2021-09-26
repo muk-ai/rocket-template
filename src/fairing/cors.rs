@@ -25,7 +25,10 @@ impl Fairing for CorsFairing {
             "Access-Control-Allow-Methods",
             "DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT",
         ));
-        response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
+        response.set_header(Header::new(
+            "Access-Control-Allow-Headers",
+            "Authorization, *",
+        ));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
 
         // NOTE: replace status code and body if not found
