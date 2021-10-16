@@ -9,8 +9,8 @@ table! {
 }
 
 table! {
-    users (uid) {
-        uid -> Varchar,
+    users (firebase_uid) {
+        firebase_uid -> Varchar,
         created_at -> Timestamptz,
         id -> Uuid,
     }
