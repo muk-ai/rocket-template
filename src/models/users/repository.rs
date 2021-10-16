@@ -6,7 +6,7 @@ use diesel::prelude::*;
 #[derive(Insertable)]
 #[table_name = "users"]
 struct InsertableUser {
-    uid: String,
+    firebase_uid: String,
 }
 
 pub fn find(uid: String, conn: &DbConn) -> QueryResult<User> {
@@ -14,7 +14,7 @@ pub fn find(uid: String, conn: &DbConn) -> QueryResult<User> {
 }
 
 pub fn insert(uid: String, conn: &DbConn) -> QueryResult<User> {
-    let new_user = InsertableUser { uid };
+    let new_user = InsertableUser { firebase_uid: uid };
     diesel::insert_into(users::table)
         .values(new_user)
         .get_result(&**conn)

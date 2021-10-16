@@ -5,13 +5,13 @@ use rocket::Data;
 use crate::log::{write_info, TraceContext};
 use crate::models::users::User;
 
-pub struct LoggingUidFairing;
+pub struct LoggingFirebaseUidFairing;
 
 #[rocket::async_trait]
-impl Fairing for LoggingUidFairing {
+impl Fairing for LoggingFirebaseUidFairing {
     fn info(&self) -> Info {
         Info {
-            name: "Logging uid",
+            name: "Logging firebase_uid",
             kind: Kind::Request,
         }
     }
@@ -25,7 +25,7 @@ impl Fairing for LoggingUidFairing {
         match user {
             Outcome::Success(user) => {
                 write_info(
-                    format!("users.uid (the same as Firebase uid) is {}", user.uid),
+                    format!("users.firebase_uid is {}", user.firebase_uid),
                     trace_context,
                 );
                 write_info(format!("users.id is {}", user.id), trace_context);

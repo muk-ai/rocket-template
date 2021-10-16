@@ -6,7 +6,7 @@ pub mod repository;
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Identifiable)]
 pub struct User {
-    pub uid: String,
+    pub firebase_uid: String,
     pub created_at: chrono::NaiveDateTime,
     pub id: uuid::Uuid,
 }
