@@ -55,7 +55,7 @@ fn post_auth_me(
 
 #[delete("/me")]
 fn delete_auth_me(user: User, conn: DbConn) -> Result<Status, status::Custom<Value>> {
-    match users::repository::delete(user.uid, &conn) {
+    match users::repository::delete(user.firebase_uid, &conn) {
         Ok(_) => Ok(Status::NoContent),
         Err(_) => Err(json_error(
             Status::InternalServerError,

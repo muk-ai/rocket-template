@@ -27,7 +27,7 @@ fn rocket() -> Rocket<Build> {
         .manage(connection::init_pool())
         .attach(fairing::jwks::FetchJwksFairing)
         .attach(fairing::cors::CorsFairing)
-        .attach(fairing::log::LoggingUidFairing)
+        .attach(fairing::log::LoggingFirebaseUidFairing)
         .attach(fairing::migration::MigrationFairing)
         .attach(handlers::auth::stage())
         .attach(handlers::tasks::stage())
