@@ -1,4 +1,14 @@
 table! {
+    deleted_users (id) {
+        id -> Uuid,
+        user_id -> Uuid,
+        user_firebase_uid -> Varchar,
+        user_deleted_at -> Timestamptz,
+        user_created_at -> Timestamptz,
+    }
+}
+
+table! {
     tasks (id) {
         id -> Int4,
         description -> Text,
@@ -17,6 +27,7 @@ table! {
 }
 
 allow_tables_to_appear_in_same_query!(
+    deleted_users,
     tasks,
     users,
 );
