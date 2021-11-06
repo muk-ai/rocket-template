@@ -9,8 +9,8 @@ use crate::connection::DbConn;
 use crate::firebase;
 use crate::id_token::IdToken;
 use crate::log::{write_error, TraceContext};
-use crate::models::users;
 use crate::models::users::User;
+use crate::models::{deleted_users, users};
 
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("Mount /auth", |rocket| async {
@@ -55,6 +55,12 @@ fn post_auth_me(
 
 #[delete("/me")]
 fn delete_auth_me(user: User, conn: DbConn) -> Result<Status, status::Custom<Value>> {
+    if deleted_users::repository::insert(&user, &conn).is_err() {
+        return Err(json_error(
+            Status::InternalServerError,
+            "internal server error".to_string(),
+        ));
+    }
     match users::repository::delete(user.firebase_uid, &conn) {
         Ok(_) => Ok(Status::NoContent),
         Err(_) => Err(json_error(
