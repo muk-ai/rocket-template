@@ -1,6 +1,6 @@
 table! {
     deleted_users (id) {
-        id -> Uuid,
+        id -> Int4,
         user_id -> Uuid,
         user_firebase_uid -> Varchar,
         user_deleted_at -> Timestamptz,
