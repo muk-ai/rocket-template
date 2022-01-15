@@ -35,13 +35,13 @@ fn run_db_migrations(pool: &PgPool) -> Result<(), ()> {
             Ok(()) => Ok(()),
             Err(e) => {
                 write_error("migration failed", None);
-                write_error(format!("Error: {}", e), None);
+                write_error(format!("Error: {e}"), None);
                 Err(())
             }
         },
         Err(e) => {
             write_error("couldn't get connection pool", None);
-            write_error(format!("Error: {}", e), None);
+            write_error(format!("Error: {e}"), None);
             Err(())
         }
     }
