@@ -29,7 +29,7 @@ impl<'r> FromRequest<'r> for User {
                 }
             }
             Err(message) => {
-                write_error(format!("verify_id_token failed. Error: {}", message), trace);
+                write_error(format!("verify_id_token failed. Error: {message}"), trace);
                 Outcome::Failure((Status::Unauthorized, ()))
             }
         }

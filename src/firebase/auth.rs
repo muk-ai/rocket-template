@@ -38,7 +38,7 @@ pub fn verify_id_token(id_token: String) -> Result<TokenData<Claims>, String> {
     let decoded_token = decode::<Claims>(&id_token, &decoding_key, &validation);
     let token_data = match decoded_token {
         Ok(token) => token,
-        Err(e) => return Err(format!("{}", e)),
+        Err(e) => return Err(format!("{e}")),
     };
     Ok(token_data)
 }

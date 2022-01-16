@@ -19,7 +19,7 @@ impl<'r> FromRequest<'r> for &'r TraceContext {
             if let Some(header) = request.headers().get_one("X-Cloud-Trace-Context") {
                 let chunks: Vec<&str> = header.split(&['/', ';'][..]).collect();
                 if let (Some(trace), Some(span)) = (chunks.get(0), chunks.get(1)) {
-                    let trace = format!("projects/{}/traces/{}", &CONFIG.gcp_project_id, trace);
+                    let trace = format!("projects/{}/traces/{trace}", &CONFIG.gcp_project_id);
                     return Some(TraceContext {
                         trace,
                         span_id: span.to_string(),
@@ -65,8 +65,8 @@ fn write_log(severity: LogSeverity, message: impl Into<String>, context: Option<
     };
     if let Ok(log) = serde_json::to_string(&log) {
         match severity {
-            LogSeverity::Info => println!("{}", log),
-            LogSeverity::Error => eprintln!("{}", log),
+            LogSeverity::Info => println!("{log}"),
+            LogSeverity::Error => eprintln!("{log}"),
         }
     }
 }

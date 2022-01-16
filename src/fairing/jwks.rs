@@ -21,12 +21,12 @@ impl Fairing for FetchJwksFairing {
             Ok(response) => match response.json::<JwkSet>().await {
                 Ok(json) => jwk_set = Some(json),
                 Err(err) => {
-                    write_error(format!("{:?}", err), None);
+                    write_error(format!("{err:?}"), None);
                 }
             },
-            Err(err) => write_error(format!("{:?}", err), None),
+            Err(err) => write_error(format!("{err:?}"), None),
         }
-        let jwk_set = jwk_set.unwrap_or_else(|| panic!("couldn't get JWK Set from {}", JWKS_URL));
+        let jwk_set = jwk_set.unwrap_or_else(|| panic!("couldn't get JWK Set from {JWKS_URL}"));
         FIREBASE_JWKS
             .set(jwk_set)
             .expect("OnceCell<JwkSet> is already filled");

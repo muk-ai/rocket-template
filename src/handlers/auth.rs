@@ -31,7 +31,7 @@ fn post_auth_me(
 ) -> Result<Status, status::Custom<Value>> {
     let token_result = firebase::auth::verify_id_token(id_token.0);
     if let Err(message) = token_result {
-        write_error(format!("verify_id_token failed. Error: {}", message), trace);
+        write_error(format!("verify_id_token failed. Error: {message}"), trace);
         return Err(json_error(Status::Unauthorized, message));
     }
 

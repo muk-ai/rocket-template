@@ -21,7 +21,7 @@ fn hello_world() -> &'static str {
 #[get("/params/<id>")]
 fn params(id: Option<usize>) -> String {
     match id {
-        Some(n) => format!("usize: {}", n),
+        Some(n) => format!("usize: {n}"),
         None => "Not a usize".to_string(),
     }
 }
@@ -74,7 +74,7 @@ fn cookies(cookies: &CookieJar<'_>) -> Option<String> {
         .get_private("private")
         .map(|crumb| crumb.value().to_owned());
     if let (Some(message), Some(private)) = (message, private) {
-        Some(format!("message: {}, private: {}", message, private))
+        Some(format!("message: {message}, private: {private}"))
     } else {
         None
     }
