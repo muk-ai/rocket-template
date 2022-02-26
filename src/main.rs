@@ -23,6 +23,8 @@ mod schema;
 fn rocket() -> Rocket<Build> {
     dotenv::dotenv().ok();
 
+    println!("changed!!!!!!");
+
     rocket::build()
         .manage(connection::init_pool())
         .attach(fairing::jwks::FetchJwksFairing)
