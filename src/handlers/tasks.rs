@@ -32,6 +32,7 @@ fn tasks_index(
     conn: DbConn,
     trace: Option<&TraceContext>,
 ) -> Result<Json<Vec<Task>>, Status> {
+    write_info("この変更は反映されています！", trace);
     write_info("/tasks called", trace);
     let query_result: QueryResult<Vec<Task>> = Task::belonging_to(&user).load::<Task>(&*conn);
     query_result
