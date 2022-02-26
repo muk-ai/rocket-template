@@ -8,7 +8,6 @@ COPY ./Cargo.toml ./Cargo.lock ./
 RUN mkdir src
 RUN echo "fn main(){}" > src/main.rs
 RUN cargo build --release
-RUN rm -f src/main.rs
 
 COPY ./src ./src
 COPY ./migrations ./migrations
