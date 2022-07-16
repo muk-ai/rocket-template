@@ -28,13 +28,14 @@ pub fn verify_id_token(id_token: String) -> Result<TokenData<Claims>, String> {
         None => return Err(String::from("JWK is not found")),
     };
     let project_id = &CONFIG.firebase_project_id;
-    let mut validation = Validation {
-        validate_exp: true,
-        iss: Some("https://securetoken.google.com/".to_string() + project_id),
-        ..Validation::new(Algorithm::RS256)
-    };
+    let mut validation = Validation::new(Algorithm::RS256);
+    validation.validate_exp = true;
+    validation.set_issuer(&["https://securetoken.google.com/".to_string() + project_id]);
     validation.set_audience(&[project_id]);
-    let decoding_key = DecodingKey::from_rsa_components(&jwk.n, &jwk.e);
+    let decoding_key = match DecodingKey::from_rsa_components(&jwk.n, &jwk.e) {
+        Ok(key) => key,
+        Err(e) => return Err(format!("{e}")),
+    };
     let decoded_token = decode::<Claims>(&id_token, &decoding_key, &validation);
     let token_data = match decoded_token {
         Ok(token) => token,
