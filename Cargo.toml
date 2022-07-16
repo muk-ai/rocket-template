@@ -11,15 +11,15 @@ version = "0.5.0-rc.1"
 features = ["json", "secrets"]
 
 [dependencies]
-diesel = { version = "1.4.5", features = ["postgres", "r2d2", "chrono", "uuidv07"] }
+diesel = { version = "1.4.8", features = ["postgres", "r2d2", "chrono", "uuidv07"] }
 diesel_migrations = "1.4.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
-jsonwebtoken = "7"
+jsonwebtoken = "8"
 reqwest = { version = "0.11", features = ["json"] }
-uuid = { version = "0.8", features = ["serde"] }
-time = "0.2"
+uuid = { version = "1.1", features = ["serde"] }
+time = "0.3"
 
 # connection pool
 r2d2 = "0.8"
